@@ -107,11 +107,6 @@ button{
   color:white;
 }
 
-.gold{
-  background:var(--gold);
-  color:#111;
-}
-
 .exercise{
   border-bottom:1px solid var(--line);
   padding:13px 0;
@@ -179,30 +174,6 @@ textarea{
   transition:width .2s ease;
 }
 
-.timer{
-  font-size:48px;
-  font-weight:800;
-  text-align:center;
-  color:var(--gold);
-  margin:10px;
-  font-variant-numeric:tabular-nums;
-}
-
-.timer.final{
-  color:var(--red);
-}
-
-.timer.finished{
-  color:var(--green);
-}
-
-.timer-label{
-  text-align:center;
-  color:var(--muted);
-  font-size:14px;
-  min-height:20px;
-}
-
 .small{
   font-size:13px;
   color:var(--muted);
@@ -226,26 +197,89 @@ textarea{
   font-size:13px;
 }
 
-.quick-timer{
+/* TIMER V KARTICI VAJE */
+
+.exercise-timer{
   margin-top:12px;
   padding:10px;
   border:1px solid var(--line);
-  border-radius:11px;
+  border-radius:12px;
   background:#111610;
 }
 
-.quick-title{
-  color:var(--muted);
-  font-size:13px;
-  margin-bottom:8px;
+.exercise-timer.active{
+  border-color:var(--gold);
 }
 
-.quick-btn{
+.exercise-timer.finished{
+  border-color:var(--green);
+}
+
+.timer-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.timer-buttons{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  flex:1;
+}
+
+.timer-button{
   background:#394739;
   color:white;
+  min-height:40px;
   padding:7px 10px;
-  min-height:38px;
   font-size:13px;
+}
+
+.timer-stop{
+  background:var(--red);
+  color:white;
+  min-height:40px;
+  padding:7px 10px;
+  font-size:13px;
+}
+
+.timer-display{
+  min-width:120px;
+  text-align:center;
+  font-size:34px;
+  font-weight:800;
+  color:var(--gold);
+  font-variant-numeric:tabular-nums;
+}
+
+.timer-display.final{
+  color:var(--red);
+}
+
+.timer-display.finished{
+  color:var(--green);
+}
+
+.timer-caption{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+
+@media (max-width:520px){
+
+  .timer-row{
+    align-items:stretch;
+  }
+
+  .timer-display{
+    width:100%;
+    text-align:left;
+    margin-top:5px;
+  }
+
 }
 
 @media (min-width:650px){
@@ -326,36 +360,6 @@ textarea{
   <div class="row" style="margin-top:10px">
     <button class="green" onclick="finish()">Zaključi dan</button>
     <button class="red" onclick="resetDay()">Ponastavi dan</button>
-  </div>
-</div>
-
-<div class="card" id="mainTimerCard">
-  <b>Glavni timer</b>
-
-  <div id="timerLabel" class="timer-label">
-    Izberi čas pri vaji ali spodaj
-  </div>
-
-  <div id="clock" class="timer">00:00</div>
-
-  <div class="row">
-    <button class="dark" onclick="startTimer(20,'Ročni timer')">20 s</button>
-    <button class="dark" onclick="startTimer(30,'Ročni timer')">30 s</button>
-    <button class="dark" onclick="startTimer(45,'Ročni timer')">45 s</button>
-    <button class="dark" onclick="startTimer(60,'Ročni timer')">60 s</button>
-    <button class="red" onclick="stopTimer()">STOP</button>
-  </div>
-
-  <div class="small" style="margin-top:12px">
-    Kondicija:
-  </div>
-
-  <div class="row" style="margin-top:6px">
-    <button class="dark" onclick="startTimer(300,'Kondicija · 5 min')">5 min</button>
-    <button class="dark" onclick="startTimer(600,'Kondicija · 10 min')">10 min</button>
-    <button class="dark" onclick="startTimer(900,'Kondicija · 15 min')">15 min</button>
-    <button class="dark" onclick="startTimer(1200,'Kondicija · 20 min')">20 min</button>
-    <button class="dark" onclick="startTimer(1800,'Kondicija · 30 min')">30 min</button>
   </div>
 </div>
 
@@ -493,8 +497,12 @@ const week = [
 ];
 
 let current = Number(localStorage.getItem("WT_current") || 0);
-let timer = null;
 let tiredMode = false;
+
+let activeTimer = null;
+let activeTimerExercise = null;
+let activeTimerSeconds = 0;
+
 let audioContext = null;
 
 
@@ -813,7 +821,144 @@ function isConditioningExercise(name){
 
 }
 
-function escapeQuotes(text){
+
+/* TIMER HTML V KARTICI */
+
+function exerciseTimerHtml(name,index){
+
+  if(isShortTimedExercise(name)){
+
+    return `
+      <div
+        id="timerBox_${index}"
+        class="exercise-timer">
+
+        <div class="timer-caption">
+          Čas
+        </div>
+
+        <div class="timer-row">
+
+          <div class="timer-buttons">
+
+            <button
+              class="timer-button"
+              onclick="startExerciseTimer(${index},20,'${safeJs(name)}')">
+              20 s
+            </button>
+
+            <button
+              class="timer-button"
+              onclick="startExerciseTimer(${index},30,'${safeJs(name)}')">
+              30 s
+            </button>
+
+            <button
+              class="timer-button"
+              onclick="startExerciseTimer(${index},45,'${safeJs(name)}')">
+              45 s
+            </button>
+
+            <button
+              class="timer-button"
+              onclick="startExerciseTimer(${index},60,'${safeJs(name)}')">
+              60 s
+            </button>
+
+            <button
+              class="timer-stop"
+              onclick="stopExerciseTimer(${index})">
+              STOP
+            </button>
+
+          </div>
+
+          <div
+            id="timerDisplay_${index}"
+            class="timer-display">
+            00:00
+          </div>
+
+        </div>
+
+      </div>
+    `;
+
+  }
+
+
+  if(isConditioningExercise(name)){
+
+    return `
+      <div
+        id="timerBox_${index}"
+        class="exercise-timer">
+
+        <div class="timer-caption">
+          Čas
+        </div>
+
+        <div class="timer-row">
+
+          <div class="timer-buttons">
+
+            <button
+              class="timer-button"
+              onclick="startExerciseTimer(${index},300,'${safeJs(name)}')">
+              5 min
+            </button>
+
+            <button
+              class="timer-button"
+              onclick="startExerciseTimer(${index},600,'${safeJs(name)}')">
+              10 min
+            </button>
+
+            <button
+              class="timer-button"
+              onclick="startExerciseTimer(${index},900,'${safeJs(name)}')">
+              15 min
+            </button>
+
+            <button
+              class="timer-button"
+              onclick="startExerciseTimer(${index},1200,'${safeJs(name)}')">
+              20 min
+            </button>
+
+            <button
+              class="timer-button"
+              onclick="startExerciseTimer(${index},1800,'${safeJs(name)}')">
+              30 min
+            </button>
+
+            <button
+              class="timer-stop"
+              onclick="stopExerciseTimer(${index})">
+              STOP
+            </button>
+
+          </div>
+
+          <div
+            id="timerDisplay_${index}"
+            class="timer-display">
+            00:00
+          </div>
+
+        </div>
+
+      </div>
+    `;
+
+  }
+
+
+  return "";
+
+}
+
+function safeJs(text){
 
   return text
     .replace(/\\/g,"\\\\")
@@ -821,90 +966,304 @@ function escapeQuotes(text){
 
 }
 
-function quickTimerHtml(name){
 
-  if(isShortTimedExercise(name)){
+/* TIMER LOGIKA */
 
-    return `
-      <div class="quick-timer">
+function formatTime(sec){
 
-        <div class="quick-title">
-          Nastavi glavni timer
-        </div>
+  const m =
+    Math.floor(
+      sec / 60
+    );
 
-        <div class="row">
+  const s =
+    sec % 60;
 
-          <button class="quick-btn"
-            onclick="runExerciseTimer('${escapeQuotes(name)}',20)">
-            20 s
-          </button>
+  return (
+    String(m).padStart(2,"0") +
+    ":" +
+    String(s).padStart(2,"0")
+  );
 
-          <button class="quick-btn"
-            onclick="runExerciseTimer('${escapeQuotes(name)}',30)">
-            30 s
-          </button>
+}
 
-          <button class="quick-btn"
-            onclick="runExerciseTimer('${escapeQuotes(name)}',45)">
-            45 s
-          </button>
+function clearActiveTimer(){
 
-          <button class="quick-btn"
-            onclick="runExerciseTimer('${escapeQuotes(name)}',60)">
-            60 s
-          </button>
+  if(activeTimer){
 
-        </div>
-
-      </div>
-    `;
+    clearInterval(
+      activeTimer
+    );
 
   }
 
-  if(isConditioningExercise(name)){
+  activeTimer =
+    null;
 
-    return `
-      <div class="quick-timer">
+  activeTimerExercise =
+    null;
 
-        <div class="quick-title">
-          Nastavi glavni timer
-        </div>
+  activeTimerSeconds =
+    0;
 
-        <div class="row">
+}
 
-          <button class="quick-btn"
-            onclick="runExerciseTimer('${escapeQuotes(name)}',300)">
-            5 min
-          </button>
+function resetTimerVisual(index){
 
-          <button class="quick-btn"
-            onclick="runExerciseTimer('${escapeQuotes(name)}',600)">
-            10 min
-          </button>
+  const display =
+    document.getElementById(
+      "timerDisplay_" + index
+    );
 
-          <button class="quick-btn"
-            onclick="runExerciseTimer('${escapeQuotes(name)}',900)">
-            15 min
-          </button>
+  const box =
+    document.getElementById(
+      "timerBox_" + index
+    );
 
-          <button class="quick-btn"
-            onclick="runExerciseTimer('${escapeQuotes(name)}',1200)">
-            20 min
-          </button>
+  if(display){
 
-          <button class="quick-btn"
-            onclick="runExerciseTimer('${escapeQuotes(name)}',1800)">
-            30 min
-          </button>
-
-        </div>
-
-      </div>
-    `;
+    display.classList.remove(
+      "final",
+      "finished"
+    );
 
   }
 
-  return "";
+  if(box){
+
+    box.classList.remove(
+      "active",
+      "finished"
+    );
+
+  }
+
+}
+
+function startExerciseTimer(
+  index,
+  seconds,
+  name
+){
+
+  ensureAudio();
+
+
+  /* ustavi stari timer */
+
+  if(
+    activeTimerExercise !== null
+  ){
+
+    const oldIndex =
+      activeTimerExercise;
+
+    clearActiveTimer();
+
+    resetTimerVisual(
+      oldIndex
+    );
+
+  }
+
+
+  activeTimerExercise =
+    index;
+
+  activeTimerSeconds =
+    seconds;
+
+
+  const display =
+    document.getElementById(
+      "timerDisplay_" + index
+    );
+
+  const box =
+    document.getElementById(
+      "timerBox_" + index
+    );
+
+
+  if(!display)
+    return;
+
+
+  if(box){
+
+    box.classList.add(
+      "active"
+    );
+
+    box.classList.remove(
+      "finished"
+    );
+
+  }
+
+
+  display.classList.remove(
+    "final",
+    "finished"
+  );
+
+
+  display.innerText =
+    formatTime(
+      seconds
+    );
+
+
+  let remaining =
+    seconds;
+
+
+  activeTimer =
+    setInterval(()=>{
+
+
+      remaining--;
+
+
+      display.innerText =
+        formatTime(
+          Math.max(
+            remaining,
+            0
+          )
+        );
+
+
+      if(
+        remaining <= 3 &&
+        remaining > 0
+      ){
+
+        display.classList.add(
+          "final"
+        );
+
+        playCountdownBeep(
+          remaining
+        );
+
+      }
+
+
+      if(
+        remaining <= 0
+      ){
+
+        clearInterval(
+          activeTimer
+        );
+
+
+        activeTimer =
+          null;
+
+
+        activeTimerExercise =
+          null;
+
+
+        display.classList.remove(
+          "final"
+        );
+
+
+        display.classList.add(
+          "finished"
+        );
+
+
+        if(box){
+
+          box.classList.remove(
+            "active"
+          );
+
+          box.classList.add(
+            "finished"
+          );
+
+        }
+
+
+        playEndSound();
+
+
+        /* obdrži izbran čas za naslednjo serijo */
+
+        setTimeout(()=>{
+
+          if(
+            display &&
+            display.classList.contains(
+              "finished"
+            )
+          ){
+
+            display.innerText =
+              formatTime(
+                seconds
+              );
+
+          }
+
+        },1200);
+
+      }
+
+
+    },1000);
+
+}
+
+function stopExerciseTimer(index){
+
+  if(
+    activeTimerExercise === index
+  ){
+
+    clearActiveTimer();
+
+  }
+
+
+  const display =
+    document.getElementById(
+      "timerDisplay_" + index
+    );
+
+
+  const box =
+    document.getElementById(
+      "timerBox_" + index
+    );
+
+
+  if(display){
+
+    display.innerText =
+      "00:00";
+
+    display.classList.remove(
+      "final",
+      "finished"
+    );
+
+  }
+
+
+  if(box){
+
+    box.classList.remove(
+      "active",
+      "finished"
+    );
+
+  }
 
 }
 
@@ -934,6 +1293,7 @@ function renderDays(){
     b.className =
       "day";
 
+
     let s =
       JSON.parse(
         localStorage.getItem(
@@ -942,15 +1302,18 @@ function renderDays(){
         '{"finished":false}'
       );
 
+
     if(i === current)
       b.classList.add(
         "active"
       );
 
+
     if(s.finished)
       b.classList.add(
         "finished"
       );
+
 
     b.innerText =
       (i + 1) +
@@ -960,9 +1323,12 @@ function renderDays(){
         : ""
       );
 
+
     b.onclick = () => {
 
       saveForm();
+
+      clearActiveTimer();
 
       current = i;
 
@@ -983,6 +1349,7 @@ function renderDays(){
 
     };
 
+
     box.appendChild(b);
 
   }
@@ -994,13 +1361,18 @@ function renderDays(){
 
 function render(){
 
+  clearActiveTimer();
+
   renderDays();
+
 
   const p =
     plan(current);
 
+
   const s =
     state();
+
 
   document
     .getElementById("title")
@@ -1010,44 +1382,54 @@ function render(){
     " · " +
     p.name;
 
+
   document
     .getElementById("meta")
     .innerText =
     date(current);
+
 
   document
     .getElementById("phaseLabel")
     .innerText =
     phase(current);
 
+
   const tiredBtn =
     document.getElementById(
       "tiredBtn"
     );
+
 
   tiredBtn.innerText =
     tiredMode
     ? "Lažja različica aktivna"
     : "Danes sem utrujen";
 
+
   const box =
     document.getElementById(
       "exercises"
     );
 
+
   box.innerHTML =
     "";
 
+
   p.ex.forEach(
     (e,i)=>{
+
 
       let d =
         document.createElement(
           "div"
         );
 
+
       d.className =
         "card exercise";
+
 
       if(
         s.done.includes(i)
@@ -1059,8 +1441,10 @@ function render(){
 
       }
 
+
       let detail =
         e[1];
+
 
       if(
         tiredMode &&
@@ -1071,6 +1455,7 @@ function render(){
           " · danes približno 20–30 % manj volumna";
 
       }
+
 
       d.innerHTML =
       `
@@ -1103,13 +1488,15 @@ function render(){
 
         </div>
 
-        ${quickTimerHtml(e[0])}
+        ${exerciseTimerHtml(e[0],i)}
       `;
+
 
       box.appendChild(d);
 
     }
   );
+
 
   let percent =
     Math.round(
@@ -1118,11 +1505,13 @@ function render(){
       100
     );
 
+
   document
     .getElementById("fill")
     .style.width =
     percent +
     "%";
+
 
   document
     .getElementById("progressText")
@@ -1134,6 +1523,7 @@ function render(){
     percent +
     " %";
 
+
   document
     .getElementById("rpe")
     .value =
@@ -1141,12 +1531,14 @@ function render(){
       key() + "_rpe"
     ) || "";
 
+
   document
     .getElementById("feel")
     .value =
     localStorage.getItem(
       key() + "_feel"
     ) || "";
+
 
   document
     .getElementById("notes")
@@ -1176,8 +1568,10 @@ function toggle(i){
 
   saveForm();
 
+
   let s =
     state();
+
 
   if(
     s.done.includes(i)
@@ -1194,6 +1588,7 @@ function toggle(i){
 
   }
 
+
   save(s);
 
   render();
@@ -1208,6 +1603,7 @@ function saveForm(){
   let s =
     state();
 
+
   document
     .querySelectorAll(
       "[data-weight]"
@@ -1221,7 +1617,9 @@ function saveForm(){
 
     });
 
+
   save(s);
+
 
   localStorage.setItem(
     key() + "_rpe",
@@ -1230,12 +1628,14 @@ function saveForm(){
     ).value
   );
 
+
   localStorage.setItem(
     key() + "_feel",
     document.getElementById(
       "feel"
     ).value
   );
+
 
   localStorage.setItem(
     key() + "_notes",
@@ -1253,15 +1653,20 @@ function finish(){
 
   saveForm();
 
+
   let s =
     state();
+
 
   s.finished =
     true;
 
+
   save(s);
 
+
   render();
+
 
   alert(
     "Dan zaključen."
@@ -1282,193 +1687,31 @@ function resetDay(){
     return;
   }
 
+
+  clearActiveTimer();
+
+
   localStorage.removeItem(
     key()
   );
+
 
   localStorage.removeItem(
     key() + "_rpe"
   );
 
+
   localStorage.removeItem(
     key() + "_feel"
   );
+
 
   localStorage.removeItem(
     key() + "_notes"
   );
 
+
   render();
-
-}
-
-
-/* TIMER */
-
-function display(sec){
-
-  let m =
-    Math.floor(
-      sec / 60
-    );
-
-  let s =
-    sec % 60;
-
-  document
-    .getElementById("clock")
-    .innerText =
-    String(m).padStart(2,"0") +
-    ":" +
-    String(s).padStart(2,"0");
-
-}
-
-function startTimer(sec,label){
-
-  ensureAudio();
-
-  if(timer){
-
-    clearInterval(
-      timer
-    );
-
-  }
-
-  const clock =
-    document.getElementById(
-      "clock"
-    );
-
-  clock.classList.remove(
-    "final",
-    "finished"
-  );
-
-  document
-    .getElementById(
-      "timerLabel"
-    )
-    .innerText =
-    label ||
-    "Timer";
-
-  display(sec);
-
-  timer =
-    setInterval(()=>{
-
-      sec--;
-
-      display(
-        Math.max(
-          sec,
-          0
-        )
-      );
-
-      if(
-        sec <= 3 &&
-        sec > 0
-      ){
-
-        clock.classList.add(
-          "final"
-        );
-
-        playCountdownBeep(
-          sec
-        );
-
-      }
-
-      if(
-        sec <= 0
-      ){
-
-        clearInterval(
-          timer
-        );
-
-        timer =
-          null;
-
-        clock.classList.remove(
-          "final"
-        );
-
-        clock.classList.add(
-          "finished"
-        );
-
-        document
-          .getElementById(
-            "timerLabel"
-          )
-          .innerText =
-          "Končano";
-
-        playEndSound();
-
-      }
-
-    },1000);
-
-}
-
-function runExerciseTimer(
-  name,
-  seconds
-){
-
-  startTimer(
-    seconds,
-    name
-  );
-
-  document
-    .getElementById(
-      "mainTimerCard"
-    )
-    .scrollIntoView({
-      behavior:"smooth",
-      block:"center"
-    });
-
-}
-
-function stopTimer(){
-
-  if(timer){
-
-    clearInterval(
-      timer
-    );
-
-  }
-
-  timer =
-    null;
-
-  display(0);
-
-  const clock =
-    document.getElementById(
-      "clock"
-    );
-
-  clock.classList.remove(
-    "final",
-    "finished"
-  );
-
-  document
-    .getElementById(
-      "timerLabel"
-    )
-    .innerText =
-    "Timer ustavljen";
 
 }
 
@@ -1479,15 +1722,17 @@ function exportSummary(){
 
   saveForm();
 
+
   let lines = [];
+
 
   lines.push(
     "WARRIOR TETRAD - POVZETEK NAPREDKA"
   );
 
-  lines.push(
-    ""
-  );
+
+  lines.push("");
+
 
   for(
     let i=0;
@@ -1495,8 +1740,10 @@ function exportSummary(){
     i++
   ){
 
+
     const p =
       plan(i);
+
 
     const s =
       JSON.parse(
@@ -1506,20 +1753,24 @@ function exportSummary(){
         '{"done":[],"weights":{},"finished":false}'
       );
 
+
     const rpe =
       localStorage.getItem(
         "WT_" + i + "_rpe"
       ) || "";
+
 
     const feel =
       localStorage.getItem(
         "WT_" + i + "_feel"
       ) || "";
 
+
     const notes =
       localStorage.getItem(
         "WT_" + i + "_notes"
       ) || "";
+
 
     const hasWeights =
       Object.values(
@@ -1528,6 +1779,7 @@ function exportSummary(){
       .some(
         v => v
       );
+
 
     if(
       !s.finished &&
@@ -1542,6 +1794,7 @@ function exportSummary(){
 
     }
 
+
     lines.push(
       "DAN " +
       (i + 1) +
@@ -1551,10 +1804,12 @@ function exportSummary(){
       p.name
     );
 
+
     lines.push(
       "Faza: " +
       phase(i)
     );
+
 
     if(
       s.finished
@@ -1566,6 +1821,7 @@ function exportSummary(){
 
     }
 
+
     if(rpe){
 
       lines.push(
@@ -1574,6 +1830,7 @@ function exportSummary(){
       );
 
     }
+
 
     if(feel){
 
@@ -1584,8 +1841,10 @@ function exportSummary(){
 
     }
 
+
     p.ex.forEach(
       (exercise,index)=>{
+
 
         const weight =
           s.weights &&
@@ -1593,15 +1852,18 @@ function exportSummary(){
           ? s.weights[index]
           : "";
 
+
         const isDone =
           s.done.includes(
             index
           );
 
+
         if(
           weight ||
           isDone
         ){
+
 
           lines.push(
 
@@ -1621,10 +1883,13 @@ function exportSummary(){
 
           );
 
+
         }
+
 
       }
     );
+
 
     if(notes){
 
@@ -1635,27 +1900,31 @@ function exportSummary(){
 
     }
 
-    lines.push(
-      ""
-    );
+
+    lines.push("");
 
   }
+
 
   const text =
     lines.join(
       "\n"
     );
 
+
   const box =
     document.getElementById(
       "exportBox"
     );
 
+
   box.value =
     text;
 
+
   box.style.height =
     "auto";
+
 
   box.style.height =
     Math.min(
@@ -1675,6 +1944,7 @@ function selectSummary(){
       "exportBox"
     );
 
+
   box.focus();
 
   box.select();
@@ -1688,9 +1958,10 @@ function exportBackup(){
 
   saveForm();
 
+
   const backup = {
 
-    version:6,
+    version:7,
 
     exportedAt:
       new Date()
@@ -1705,37 +1976,46 @@ function exportBackup(){
 
   };
 
+
   for(
     let i=0;
     i<30;
     i++
   ){
 
+
     backup.data[i] = {
+
 
       state:
         localStorage.getItem(
           "WT_" + i
         ),
 
+
       rpe:
         localStorage.getItem(
           "WT_" + i + "_rpe"
         ),
+
 
       feel:
         localStorage.getItem(
           "WT_" + i + "_feel"
         ),
 
+
       notes:
         localStorage.getItem(
           "WT_" + i + "_notes"
         )
 
+
     };
 
+
   }
+
 
   const blob =
     new Blob(
@@ -1755,18 +2035,22 @@ function exportBackup(){
 
     );
 
+
   const url =
     URL.createObjectURL(
       blob
     );
+
 
   const link =
     document.createElement(
       "a"
     );
 
+
   link.href =
     url;
+
 
   link.download =
     "warrior-tetrad-backup-" +
@@ -1775,14 +2059,18 @@ function exportBackup(){
       .slice(0,10) +
     ".json";
 
+
   document.body
     .appendChild(
       link
     );
 
+
   link.click();
 
+
   link.remove();
+
 
   setTimeout(()=>{
 
@@ -1802,21 +2090,27 @@ function importBackup(event){
   const file =
     event.target.files[0];
 
+
   if(!file)
     return;
+
 
   const reader =
     new FileReader();
 
+
   reader.onload =
     function(){
 
+
       try{
+
 
         const backup =
           JSON.parse(
             reader.result
           );
+
 
         if(
           !backup ||
@@ -1828,6 +2122,7 @@ function importBackup(event){
           );
 
         }
+
 
         if(
           !confirm(
@@ -1842,11 +2137,13 @@ function importBackup(event){
 
         }
 
+
         for(
           let i=0;
           i<30;
           i++
         ){
+
 
           const item =
             backup.data[i] ||
@@ -1854,11 +2151,14 @@ function importBackup(event){
               String(i)
             ];
 
+
           if(!item)
             continue;
 
+
           const prefix =
             "WT_" + i;
+
 
           if(
             item.state !== null &&
@@ -1878,6 +2178,7 @@ function importBackup(event){
 
           }
 
+
           if(
             item.rpe !== null &&
             item.rpe !== undefined
@@ -1889,6 +2190,7 @@ function importBackup(event){
             );
 
           }
+
 
           if(
             item.feel !== null &&
@@ -1902,6 +2204,7 @@ function importBackup(event){
 
           }
 
+
           if(
             item.notes !== null &&
             item.notes !== undefined
@@ -1914,43 +2217,56 @@ function importBackup(event){
 
           }
 
+
         }
+
 
         if(
           backup.currentDay !== undefined
         ){
+
 
           localStorage.setItem(
             "WT_current",
             backup.currentDay
           );
 
+
           current =
             Number(
               backup.currentDay
             ) || 0;
 
+
         }
+
 
         alert(
           "Podatki so uspešno uvoženi."
         );
 
+
         render();
 
+
       }catch(error){
+
 
         alert(
           "Datoteke ni bilo mogoče uvoziti: " +
           error.message
         );
 
+
       }
+
 
       event.target.value =
         "";
 
+
     };
+
 
   reader.readAsText(
     file
@@ -1959,10 +2275,15 @@ function importBackup(event){
 }
 
 
+/* AUTOSAVE */
+
 document.addEventListener(
   "change",
   saveForm
 );
+
+
+/* START */
 
 render();
 
