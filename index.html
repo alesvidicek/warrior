@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Warrior Tetrad">
+<title>Warrior Tetrad 30</title>
+
+<style>
+:root{
+  --bg:#10130f;
+  --card:#1b2119;
+  --card2:#242c21;
+  --text:#f4f4ef;
+  --muted:#aeb6aa;
+  --gold:#c99a43;
+  --green:#5c8f55;
+  --red:#a8564e;
+  --line:#394235;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+main{
+  max-width:760px;
+  margin:auto;
+  padding:20px 14px 70px;
+}
+h1{color:var(--gold);margin:0}
+.sub{color:var(--muted);margin-top:4px}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:15px;
+  margin:12px 0;
+}
+.days{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:7px;
+}
+button{
+  min-height:44px;
+  border:0;
+  border-radius:10px;
+  font-weight:700;
+  font-size:15px;
+}
+.day{
+  background:var(--card2);
+  color:white;
+  border:1px solid var(--line);
+}
+.day.active{background:var(--gold);color:#111}
+.day.finished{border:2px solid var(--green)}
+.green{background:var(--green);color:white}
+.red{background:var(--red);color:white}
+.dark{background:#394739;color:white}
+.exercise{
+  border-bottom:1px solid var(--line);
+  padding:13px 0;
+}
+.exercise:last-child{border:0}
+.name{font-size:18px;font-weight:700}
+.detail{color:var(--muted);margin:5px 0 10px;line-height:1.35}
+.done .name{text-decoration:line-through;opacity:.5}
+.controls{display:flex;gap:8px;flex-wrap:wrap}
+input,select,textarea{
+  background:#111610;
+  border:1px solid var(--line);
+  color:white;
+  border-radius:9px;
+  padding:10px;
+  font-size:16px;
+}
+input{width:110px}
+textarea{width:100%;min-height:75px}
+.bar{
+  height:11px;background:#080a08;border-radius:10px;overflow:hidden;
+}
+.fill{height:100%;background:var(--green);width:0}
+.timer{
+  font-size:42px;
+  font-weight:800;
+  text-align:center;
+  color:var(--gold);
+  margin:10px;
+}
+.notice{
+  border-left:4px solid var(--gold);
+}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.small{font-size:13px;color:var(--muted)}
+</style>
+</head>
+
+<body>
+<main>
+
+<h1>WARRIOR TETRAD</h1>
+<div class="sub">30-dnevni progresivni program</div>
+
+<div class="card notice">
+<b>Osnovno pravilo</b>
+<div class="small">
+RPE večinoma 5–7/10 · brez odpovedi · 2–4 ponovitve v rezervi ·
+ne zadržuj diha. Po operaciji imajo navodila ORL prednost.
+</div>
+</div>
+
+<div class="card">
+<b>30-dnevni cikel</b>
+<div id="days" class="days" style="margin-top:12px"></div>
+</div>
+
+<div class="card">
+<div id="title" class="name"></div>
+<div id="meta" class="sub"></div>
+
+<div class="bar" style="margin-top:14px">
+<div id="fill" class="fill"></div>
+</div>
+<div id="progressText" class="small" style="margin-top:5px"></div>
+</div>
+
+<div id="exercises"></div>
+
+<div class="card">
+<b>Po treningu</b>
+
+<p>RPE</p>
+<select id="rpe">
+<option value="">Izberi</option>
+<option>4</option>
+<option>5</option>
+<option>6</option>
+<option>7</option>
+<option>8</option>
+</select>
+
+<p>Občutek</p>
+<select id="feel">
+<option value="">Izberi</option>
+<option>Prelahko</option>
+<option>Ravno prav</option>
+<option>Pretežko</option>
+</select>
+
+<p>Opombe</p>
+<textarea id="notes"></textarea>
+
+<div class="row" style="margin-top:10px">
+<button class="green" onclick="finish()">Zaključi dan</button>
+<button class="red" onclick="resetDay()">Ponastavi</button>
+</div>
+</div>
+
+<div class="card">
+<b>Timer</b>
+<div id="clock" class="timer">00:00</div>
+<div class="row">
+<button class="dark" onclick="startTimer(15)">15 s</button>
+<button class="dark" onclick="startTimer(20)">20 s</button>
+<button class="dark" onclick="startTimer(30)">30 s</button>
+<button class="dark" onclick="startTimer(60)">60 s</button>
+<button class="red" onclick="stopTimer()">STOP</button>
+</div>
+</div>
+
+</main>
+
+<script>
+const startDate=new Date(2026,8,22);
+
+const week=[
+{
+name:"Priprava / aktivacija",
+ex:[
+["Ogrevanje","Orbitrek 5 min + mobilnost"],
+["Sklece","3 × 8"],
+["Lat pulldown","3 × 8"],
+["Goblet squat","3 × 8"],
+["Single-leg RDL","2 × 8 / nogo"],
+["Dead hang","3 × 15 s"],
+["Pallof press","2 × 10 / stran"],
+["Veslač","15 min zmerno"]
+]},
+{
+name:"Glavni dan moči",
+ex:[
+["Ogrevanje","Kolo ali orbitrek 8–10 min"],
+["Bulgarian split squat","3 × 8 / nogo"],
+["Romanian deadlift","3 × 8"],
+["Cable row","3 × 8"],
+["Chest press","3 × 8"],
+["Lat pulldown","3 × 8"],
+["Suitcase carry","3 × 20 m / stran"],
+["Wall sit","2 × 15–20 s"]
+]},
+{
+name:"Aktivna regeneracija",
+ex:[
+["Hoja / kolo","30–60 min lahkotno"],
+["CVET","5–8 počasnih ciklov"],
+["Mobilnost","5–10 min"],
+["Foam roller","5–10 min po želji"]
+]},
+{
+name:"Funkcionalni špartanski dan",
+ex:[
+["Goblet squat","3 × 10"],
+["Sklece","3 × 8–10"],
+["Cable row","3 × 10"],
+["Step-up","3 × 8 / nogo"],
+["Towel hang","3 × 10–15 s"],
+["Suitcase carry","3 × 20 m / stran"],
+["Pallof press","3 × 10 / stran"],
+["Static lunge hold","3 × 15 s / nogo"],
+["Legionarski zaključek","Tekalna steza 20 min · 5,5–6 km/h · naklon 3–5 %"]
+]},
+{
+name:"Priprava + eksplozivnost",
+ex:[
+["Sklece","3 × 8"],
+["Pull-up negative","3 × 3"],
+["Goblet squat","2 × 10"],
+["Single-leg RDL","2 × 8 / nogo"],
+["Dead hang","3 × 15–20 s"],
+["Eksplozivnost","Kettlebell swing 3 × 8–10 ALI nizek box jump 3 × 3"]
+]},
+{
+name:"Vzdržljivost",
+ex:[
+["Veslač / orbitrek / hoja","30–45 min zmerno"],
+["CVET","5–8 ciklov po želji"]
+]},
+{
+name:"Regeneracija",
+ex:[
+["Hoja","Lahkotno"],
+["Kolesarjenje","Običajen tempo"],
+["CVET","5–8 ciklov"],
+["Mobilnost","5–10 min"]
+]}
+];
+
+let current=Number(localStorage.getItem("WT_current")||0);
+let timer=null;
+
+function key(){
+ return "WT_"+current;
+}
+
+function state(){
+ return JSON.parse(localStorage.getItem(key())||'{"done":[],"weights":{},"finished":false}');
+}
+
+function save(s){
+ localStorage.setItem(key(),JSON.stringify(s));
+}
+
+function phase(i){
+ if(i<7)return "TEDEN 1 · tehnika";
+ if(i<14)return "TEDEN 2 · več volumna";
+ if(i<20)return "TEDEN 3 · rahlo več bremena";
+ if(i<22)return "PREDOPERATIVNI DELOAD";
+ if(i===22)return "OPERACIJA";
+ return "OKREVANJE";
+}
+
+function date(i){
+ let d=new Date(startDate);
+ d.setDate(d.getDate()+i);
+ return d.toLocaleDateString("sl-SI");
+}
+
+function plan(i){
+
+ if(i===20)
+ return {name:"Deload",ex:[
+ ["Hoja","20–30 min lahkotno"],
+ ["CVET","5–8 ciklov"],
+ ["Mobilnost","10 min · brez uteži"]
+ ]};
+
+ if(i===21)
+ return {name:"Predoperativni dan",ex:[
+ ["Hoja","Normalna dnevna hoja"],
+ ["Počitek","Brez fitnesa, intervalov, carryjev in skokov"]
+ ]};
+
+ if(i===22)
+ return {name:"OPERACIJA",ex:[
+ ["Počitek","Brez treninga. Upoštevaj navodila ORL."]
+ ]};
+
+ if(i>=23&&i<=25)
+ return {name:"Zgodnje okrevanje",ex:[
+ ["Kratka hoja","Če ORL dovoli: 5–15 min"],
+ ["Brez napenjanja","Brez uteži, veslača, kolesa, izometrij in carryjev"]
+ ]};
+
+ if(i>=26)
+ return {name:"Postopna vrnitev",ex:[
+ ["Hoja","20–30 min zelo lahko, če ORL dovoli"],
+ ["Mobilnost","Ramena, kolki, hrbtenica"],
+ ["CVET","Samo če je dihanje udobno in ORL nima zadržkov"]
+ ]};
+
+ let p=JSON.parse(JSON.stringify(week[i%7]));
+
+ if(i>=7&&i<14){
+  p.ex=p.ex.map(x=>[
+   x[0],
+   x[1]
+    .replace("3 × 8","3 × 9–10")
+    .replace("20 m","30 m")
+    .replace("15 s","20 s")
+    .replace("15 min","20 min")
+  ]);
+ }
+
+ if(i>=14&&i<20){
+  p.ex=p.ex.map(x=>{
+   if(!/CVET|Hoja|Mobilnost|Foam|Kolesarjenje/.test(x[0])){
+    return [x[0],x[1]+" · če je lahkotno: +2,5–5 % bremena"];
+   }
+   return x;
+  });
+ }
+
+ return p;
+}
+
+function renderDays(){
+ const box=document.getElementById("days");
+ box.innerHTML="";
+
+ for(let i=0;i<30;i++){
+  let b=document.createElement("button");
+  b.className="day";
+
+  let s=JSON.parse(localStorage.getItem("WT_"+i)||'{"finished":false}');
+
+  if(i===current)b.classList.add("active");
+  if(s.finished)b.classList.add("finished");
+
+  b.innerText=(i+1)+(s.finished?" ✓":"");
+
+  b.onclick=()=>{
+   saveForm();
+   current=i;
+   localStorage.setItem("WT_current",i);
+   render();
+   window.scrollTo(0,0);
+  };
+
+  box.appendChild(b);
+ }
+}
+
+function render(){
+
+ renderDays();
+
+ const p=plan(current);
+ const s=state();
+
+ document.getElementById("title").innerText=
+ "DAN "+(current+1)+" · "+p.name;
+
+ document.getElementById("meta").innerText=
+ date(current)+" · "+phase(current);
+
+ const box=document.getElementById("exercises");
+ box.innerHTML="";
+
+ p.ex.forEach((e,i)=>{
+
+  let d=document.createElement("div");
+  d.className="card exercise";
+
+  if(s.done.includes(i))d.classList.add("done");
+
+  d.innerHTML=
+  `<div class="name">${e[0]}</div>
+   <div class="detail">${e[1]}</div>
+
+   <div class="controls">
+    <input
+      data-weight="${i}"
+      placeholder="kg / opomba"
+      value="${s.weights[i]||""}">
+    <button class="green"
+      onclick="toggle(${i})">
+      ${s.done.includes(i)?"Razveljavi":"Končano"}
+    </button>
+   </div>`;
+
+  box.appendChild(d);
+ });
+
+ let percent=Math.round(s.done.length/p.ex.length*100);
+
+ document.getElementById("fill").style.width=percent+"%";
+
+ document.getElementById("progressText").innerText=
+ s.done.length+"/"+p.ex.length+" · "+percent+" %";
+
+ document.getElementById("rpe").value=
+ localStorage.getItem(key()+"_rpe")||"";
+
+ document.getElementById("feel").value=
+ localStorage.getItem(key()+"_feel")||"";
+
+ document.getElementById("notes").value=
+ localStorage.getItem(key()+"_notes")||"";
+}
+
+function toggle(i){
+
+ saveForm();
+
+ let s=state();
+
+ if(s.done.includes(i))
+   s.done=s.done.filter(x=>x!==i);
+ else
+   s.done.push(i);
+
+ save(s);
+ render();
+}
+
+function saveForm(){
+
+ let s=state();
+
+ document.querySelectorAll("[data-weight]").forEach(el=>{
+   s.weights[el.dataset.weight]=el.value;
+ });
+
+ save(s);
+
+ localStorage.setItem(key()+"_rpe",
+ document.getElementById("rpe").value);
+
+ localStorage.setItem(key()+"_feel",
+ document.getElementById("feel").value);
+
+ localStorage.setItem(key()+"_notes",
+ document.getElementById("notes").value);
+}
+
+function finish(){
+
+ saveForm();
+
+ let s=state();
+ s.finished=true;
+ save(s);
+
+ render();
+ alert("Dan zaključen.");
+}
+
+function resetDay(){
+
+ if(!confirm("Ponastavim ta dan?"))return;
+
+ localStorage.removeItem(key());
+ localStorage.removeItem(key()+"_rpe");
+ localStorage.removeItem(key()+"_feel");
+ localStorage.removeItem(key()+"_notes");
+
+ render();
+}
+
+function display(sec){
+
+ let m=Math.floor(sec/60);
+ let s=sec%60;
+
+ document.getElementById("clock").innerText=
+ String(m).padStart(2,"0")+":"+
+ String(s).padStart(2,"0");
+}
+
+function startTimer(sec){
+
+ if(timer)clearInterval(timer);
+
+ display(sec);
+
+ timer=setInterval(()=>{
+
+   sec--;
+   display(Math.max(sec,0));
+
+   if(sec<=0){
+     clearInterval(timer);
+     timer=null;
+   }
+
+ },1000);
+}
+
+function stopTimer(){
+
+ if(timer)clearInterval(timer);
+ timer=null;
+ display(0);
+}
+
+document.addEventListener("change",saveForm);
+
+render();
+</script>
+
+</body>
+</html>
