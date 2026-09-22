@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Warrior Tetrad">
+
 <title>Warrior Tetrad 30</title>
 
 <style>
@@ -20,20 +21,35 @@
   --red:#a8564e;
   --line:#394235;
 }
-*{box-sizing:border-box}
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
 body{
   margin:0;
   background:var(--bg);
   color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
+
 main{
   max-width:760px;
   margin:auto;
   padding:20px 14px 70px;
 }
-h1{color:var(--gold);margin:0}
-.sub{color:var(--muted);margin-top:4px}
+
+h1{
+  color:var(--gold);
+  margin:0;
+}
+
+.sub{
+  color:var(--muted);
+  margin-top:4px;
+}
+
 .card{
   background:var(--card);
   border:1px solid var(--line);
@@ -41,38 +57,96 @@ h1{color:var(--gold);margin:0}
   padding:15px;
   margin:12px 0;
 }
+
+.notice{
+  border-left:4px solid var(--gold);
+}
+
 .days{
   display:grid;
   grid-template-columns:repeat(5,1fr);
   gap:7px;
 }
+
 button{
   min-height:44px;
   border:0;
   border-radius:10px;
   font-weight:700;
   font-size:15px;
+  cursor:pointer;
 }
+
 .day{
   background:var(--card2);
   color:white;
   border:1px solid var(--line);
 }
-.day.active{background:var(--gold);color:#111}
-.day.finished{border:2px solid var(--green)}
-.green{background:var(--green);color:white}
-.red{background:var(--red);color:white}
-.dark{background:#394739;color:white}
+
+.day.active{
+  background:var(--gold);
+  color:#111;
+}
+
+.day.finished{
+  border:2px solid var(--green);
+}
+
+.green{
+  background:var(--green);
+  color:white;
+}
+
+.red{
+  background:var(--red);
+  color:white;
+}
+
+.dark{
+  background:#394739;
+  color:white;
+}
+
 .exercise{
   border-bottom:1px solid var(--line);
   padding:13px 0;
 }
-.exercise:last-child{border:0}
-.name{font-size:18px;font-weight:700}
-.detail{color:var(--muted);margin:5px 0 10px;line-height:1.35}
-.done .name{text-decoration:line-through;opacity:.5}
-.controls{display:flex;gap:8px;flex-wrap:wrap}
-input,select,textarea{
+
+.exercise:last-child{
+  border:0;
+}
+
+.name{
+  font-size:18px;
+  font-weight:700;
+}
+
+.detail{
+  color:var(--muted);
+  margin:5px 0 10px;
+  line-height:1.35;
+}
+
+.done .name{
+  text-decoration:line-through;
+  opacity:.5;
+}
+
+.controls{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+input,
+select,
+textarea{
   background:#111610;
   border:1px solid var(--line);
   color:white;
@@ -80,12 +154,30 @@ input,select,textarea{
   padding:10px;
   font-size:16px;
 }
-input{width:110px}
-textarea{width:100%;min-height:75px}
-.bar{
-  height:11px;background:#080a08;border-radius:10px;overflow:hidden;
+
+input{
+  width:150px;
 }
-.fill{height:100%;background:var(--green);width:0}
+
+textarea{
+  width:100%;
+  min-height:85px;
+}
+
+.bar{
+  height:11px;
+  background:#080a08;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  background:var(--green);
+  width:0;
+  transition:width .2s ease;
+}
+
 .timer{
   font-size:42px;
   font-weight:800;
@@ -93,435 +185,1392 @@ textarea{width:100%;min-height:75px}
   color:var(--gold);
   margin:10px;
 }
-.notice{
-  border-left:4px solid var(--gold);
+
+.small{
+  font-size:13px;
+  color:var(--muted);
+  line-height:1.45;
 }
-.row{display:flex;gap:8px;flex-wrap:wrap}
-.small{font-size:13px;color:var(--muted)}
+
+.phase{
+  display:inline-block;
+  margin-top:8px;
+  padding:5px 9px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.exportBox{
+  margin-top:12px;
+  min-height:180px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:13px;
+}
+
+@media (min-width:650px){
+  .days{
+    grid-template-columns:repeat(10,1fr);
+  }
+}
 </style>
 </head>
 
 <body>
+
 <main>
 
 <h1>WARRIOR TETRAD</h1>
 <div class="sub">30-dnevni progresivni program</div>
 
 <div class="card notice">
-<b>Osnovno pravilo</b>
-<div class="small">
-RPE večinoma 5–7/10 · brez odpovedi · 2–4 ponovitve v rezervi ·
-ne zadržuj diha. Po operaciji imajo navodila ORL prednost.
-</div>
-</div>
-
-<div class="card">
-<b>30-dnevni cikel</b>
-<div id="days" class="days" style="margin-top:12px"></div>
+  <b>Osnovno pravilo</b>
+  <div class="small">
+    RPE večinoma 5–7/10 · brez odpovedi · 2–4 ponovitve v rezervi ·
+    ne zadržuj diha · kakovost giba je pomembnejša od teže.
+  </div>
 </div>
 
 <div class="card">
-<div id="title" class="name"></div>
-<div id="meta" class="sub"></div>
-
-<div class="bar" style="margin-top:14px">
-<div id="fill" class="fill"></div>
+  <b>30-dnevni cikel</b>
+  <div id="days" class="days" style="margin-top:12px"></div>
 </div>
-<div id="progressText" class="small" style="margin-top:5px"></div>
+
+<div class="card">
+  <div id="title" class="name"></div>
+  <div id="meta" class="sub"></div>
+  <div id="phaseLabel" class="phase"></div>
+
+  <div class="bar" style="margin-top:14px">
+    <div id="fill" class="fill"></div>
+  </div>
+
+  <div id="progressText" class="small" style="margin-top:5px"></div>
+
+  <div class="row" style="margin-top:12px">
+    <button id="tiredBtn" class="dark" onclick="toggleTired()">
+      Danes sem utrujen
+    </button>
+  </div>
 </div>
 
 <div id="exercises"></div>
 
 <div class="card">
-<b>Po treningu</b>
+  <b>Po treningu</b>
 
-<p>RPE</p>
-<select id="rpe">
-<option value="">Izberi</option>
-<option>4</option>
-<option>5</option>
-<option>6</option>
-<option>7</option>
-<option>8</option>
-</select>
+  <p>RPE</p>
+  <select id="rpe">
+    <option value="">Izberi</option>
+    <option>4</option>
+    <option>5</option>
+    <option>6</option>
+    <option>7</option>
+    <option>8</option>
+  </select>
 
-<p>Občutek</p>
-<select id="feel">
-<option value="">Izberi</option>
-<option>Prelahko</option>
-<option>Ravno prav</option>
-<option>Pretežko</option>
-</select>
+  <p>Občutek</p>
+  <select id="feel">
+    <option value="">Izberi</option>
+    <option>Prelahko</option>
+    <option>Ravno prav</option>
+    <option>Pretežko</option>
+  </select>
 
-<p>Opombe</p>
-<textarea id="notes"></textarea>
+  <p>Opombe</p>
+  <textarea
+    id="notes"
+    placeholder="Počutje, bolečina, dihanje, regeneracija, posebnosti..."
+  ></textarea>
 
-<div class="row" style="margin-top:10px">
-<button class="green" onclick="finish()">Zaključi dan</button>
-<button class="red" onclick="resetDay()">Ponastavi</button>
-</div>
+  <div class="row" style="margin-top:10px">
+    <button class="green" onclick="finish()">Zaključi dan</button>
+    <button class="red" onclick="resetDay()">Ponastavi dan</button>
+  </div>
 </div>
 
 <div class="card">
-<b>Timer</b>
-<div id="clock" class="timer">00:00</div>
-<div class="row">
-<button class="dark" onclick="startTimer(15)">15 s</button>
-<button class="dark" onclick="startTimer(20)">20 s</button>
-<button class="dark" onclick="startTimer(30)">30 s</button>
-<button class="dark" onclick="startTimer(60)">60 s</button>
-<button class="red" onclick="stopTimer()">STOP</button>
+  <b>Podatki in varnostna kopija</b>
+
+  <div class="small" style="margin:8px 0 12px">
+    "Izvozi povzetek" pripravi berljivo poročilo za ChatGPT.
+    JSON je varnostna kopija vseh shranjenih podatkov.
+  </div>
+
+  <div class="row">
+    <button class="green" onclick="exportSummary()">
+      Izvozi povzetek
+    </button>
+
+    <button class="dark" onclick="exportBackup()">
+      Izvozi JSON
+    </button>
+
+    <button class="dark" onclick="document.getElementById('importFile').click()">
+      Uvozi JSON
+    </button>
+
+    <input
+      id="importFile"
+      type="file"
+      accept=".json,application/json"
+      style="display:none"
+      onchange="importBackup(event)">
+  </div>
+
+  <textarea
+    id="exportBox"
+    class="exportBox"
+    readonly
+    placeholder="Povzetek napredka se bo prikazal tukaj."
+  ></textarea>
+
+  <div class="row" style="margin-top:8px">
+    <button class="dark" onclick="selectSummary()">
+      Označi povzetek
+    </button>
+  </div>
 </div>
+
+<div class="card">
+  <b>Timer</b>
+
+  <div id="clock" class="timer">00:00</div>
+
+  <div class="row">
+    <button class="dark" onclick="startTimer(15)">15 s</button>
+    <button class="dark" onclick="startTimer(20)">20 s</button>
+    <button class="dark" onclick="startTimer(30)">30 s</button>
+    <button class="dark" onclick="startTimer(60)">60 s</button>
+    <button class="red" onclick="stopTimer()">STOP</button>
+  </div>
 </div>
 
 </main>
 
 <script>
-const startDate=new Date(2026,8,22);
 
-const week=[
+const startDate = new Date(2026,8,22);
+
+const week = [
+
 {
-name:"Priprava / aktivacija",
-ex:[
-["Ogrevanje","Orbitrek 5 min + mobilnost"],
-["Sklece","3 × 8"],
-["Lat pulldown","3 × 8"],
-["Goblet squat","3 × 8"],
-["Single-leg RDL","2 × 8 / nogo"],
-["Dead hang","3 × 15 s"],
-["Pallof press","2 × 10 / stran"],
-["Veslač","15 min zmerno"]
-]},
+  name:"Priprava / aktivacija",
+  ex:[
+    ["Ogrevanje","Orbitrek 5 min + mobilnost"],
+    ["Sklece","3 × 8"],
+    ["Lat pulldown","3 × 8"],
+    ["Goblet squat","3 × 8"],
+    ["Single-leg RDL","2 × 8 / nogo"],
+    ["Dead hang","3 × 15 s"],
+    ["Pallof press","2 × 10 / stran"],
+    ["Veslač","15 min zmerno"]
+  ]
+},
+
 {
-name:"Glavni dan moči",
-ex:[
-["Ogrevanje","Kolo ali orbitrek 8–10 min"],
-["Bulgarian split squat","3 × 8 / nogo"],
-["Romanian deadlift","3 × 8"],
-["Cable row","3 × 8"],
-["Chest press","3 × 8"],
-["Lat pulldown","3 × 8"],
-["Suitcase carry","3 × 20 m / stran"],
-["Wall sit","2 × 15–20 s"]
-]},
+  name:"Glavni dan moči",
+  ex:[
+    ["Ogrevanje","Kolo ali orbitrek 8–10 min"],
+    ["Bulgarian split squat","3 × 8 / nogo"],
+    ["Romanian deadlift","3 × 8"],
+    ["Cable row","3 × 8"],
+    ["Chest press","3 × 8"],
+    ["Lat pulldown","3 × 8"],
+    ["Suitcase carry","3 × 20 m / stran"],
+    ["Wall sit","2 × 15–20 s"]
+  ]
+},
+
 {
-name:"Aktivna regeneracija",
-ex:[
-["Hoja / kolo","30–60 min lahkotno"],
-["CVET","5–8 počasnih ciklov"],
-["Mobilnost","5–10 min"],
-["Foam roller","5–10 min po želji"]
-]},
+  name:"Aktivna regeneracija",
+  ex:[
+    ["Hoja / kolo","30–60 min lahkotno"],
+    ["CVET","5–8 počasnih ciklov"],
+    ["Mobilnost","5–10 min"],
+    ["Foam roller","5–10 min po želji"]
+  ]
+},
+
 {
-name:"Funkcionalni špartanski dan",
-ex:[
-["Goblet squat","3 × 10"],
-["Sklece","3 × 8–10"],
-["Cable row","3 × 10"],
-["Step-up","3 × 8 / nogo"],
-["Towel hang","3 × 10–15 s"],
-["Suitcase carry","3 × 20 m / stran"],
-["Pallof press","3 × 10 / stran"],
-["Static lunge hold","3 × 15 s / nogo"],
-["Legionarski zaključek","Tekalna steza 20 min · 5,5–6 km/h · naklon 3–5 %"]
-]},
+  name:"Funkcionalni špartanski dan",
+  ex:[
+    ["Goblet squat","3 × 10"],
+    ["Sklece","3 × 8–10"],
+    ["Cable row","3 × 10"],
+    ["Step-up","3 × 8 / nogo"],
+    ["Towel hang","3 × 10–15 s"],
+    ["Suitcase carry","3 × 20 m / stran"],
+    ["Pallof press","3 × 10 / stran"],
+    ["Static lunge hold","3 × 15 s / nogo"],
+    ["Legionarski zaključek",
+      "Tekalna steza 20 min · 5,5–6 km/h · naklon 3–5 %"]
+  ]
+},
+
 {
-name:"Priprava + eksplozivnost",
-ex:[
-["Sklece","3 × 8"],
-["Pull-up negative","3 × 3"],
-["Goblet squat","2 × 10"],
-["Single-leg RDL","2 × 8 / nogo"],
-["Dead hang","3 × 15–20 s"],
-["Eksplozivnost","Kettlebell swing 3 × 8–10 ALI nizek box jump 3 × 3"]
-]},
+  name:"Priprava + eksplozivnost",
+  ex:[
+    ["Sklece","3 × 8"],
+    ["Pull-up negative","3 × 3"],
+    ["Goblet squat","2 × 10"],
+    ["Single-leg RDL","2 × 8 / nogo"],
+    ["Dead hang","3 × 15–20 s"],
+    ["Eksplozivnost",
+      "Kettlebell swing 3 × 8–10 ALI nizek box jump 3 × 3"]
+  ]
+},
+
 {
-name:"Vzdržljivost",
-ex:[
-["Veslač / orbitrek / hoja","30–45 min zmerno"],
-["CVET","5–8 ciklov po želji"]
-]},
+  name:"Vzdržljivost",
+  ex:[
+    ["Veslač / orbitrek / hoja","30–45 min zmerno"],
+    ["CVET","5–8 ciklov po želji"]
+  ]
+},
+
 {
-name:"Regeneracija",
-ex:[
-["Hoja","Lahkotno"],
-["Kolesarjenje","Običajen tempo"],
-["CVET","5–8 ciklov"],
-["Mobilnost","5–10 min"]
-]}
+  name:"Regeneracija",
+  ex:[
+    ["Hoja","Lahkotno"],
+    ["Kolesarjenje","Običajen tempo"],
+    ["CVET","5–8 ciklov"],
+    ["Mobilnost","5–10 min"]
+  ]
+}
+
 ];
 
-let current=Number(localStorage.getItem("WT_current")||0);
-let timer=null;
+let current = Number(localStorage.getItem("WT_current") || 0);
+let timer = null;
+let tiredMode = false;
+
 
 function key(){
- return "WT_"+current;
+  return "WT_" + current;
 }
+
 
 function state(){
- return JSON.parse(localStorage.getItem(key())||'{"done":[],"weights":{},"finished":false}');
+  return JSON.parse(
+    localStorage.getItem(key()) ||
+    '{"done":[],"weights":{},"finished":false}'
+  );
 }
+
 
 function save(s){
- localStorage.setItem(key(),JSON.stringify(s));
+  localStorage.setItem(key(), JSON.stringify(s));
 }
+
 
 function phase(i){
- if(i<7)return "TEDEN 1 · tehnika";
- if(i<14)return "TEDEN 2 · več volumna";
- if(i<20)return "TEDEN 3 · rahlo več bremena";
- if(i<22)return "PREDOPERATIVNI DELOAD";
- if(i===22)return "OPERACIJA";
- return "OKREVANJE";
+
+  if(i < 7)
+    return "TEDEN 1 · tehnika in stabilnost";
+
+  if(i < 14)
+    return "TEDEN 2 · več volumna";
+
+  if(i < 21)
+    return "TEDEN 3 · rahlo več bremena";
+
+  if(i < 28)
+    return "TEDEN 4 · konsolidacija / deload";
+
+  return "ZAKLJUČEK CIKLA";
 }
 
+
 function date(i){
- let d=new Date(startDate);
- d.setDate(d.getDate()+i);
- return d.toLocaleDateString("sl-SI");
+
+  let d = new Date(startDate);
+
+  d.setDate(
+    d.getDate() + i
+  );
+
+  return d.toLocaleDateString("sl-SI");
 }
+
 
 function plan(i){
 
- if(i===20)
- return {name:"Deload",ex:[
- ["Hoja","20–30 min lahkotno"],
- ["CVET","5–8 ciklov"],
- ["Mobilnost","10 min · brez uteži"]
- ]};
+  let p =
+    JSON.parse(
+      JSON.stringify(
+        week[i % 7]
+      )
+    );
 
- if(i===21)
- return {name:"Predoperativni dan",ex:[
- ["Hoja","Normalna dnevna hoja"],
- ["Počitek","Brez fitnesa, intervalov, carryjev in skokov"]
- ]};
 
- if(i===22)
- return {name:"OPERACIJA",ex:[
- ["Počitek","Brez treninga. Upoštevaj navodila ORL."]
- ]};
+  /* TEDEN 2 */
+  if(i >= 7 && i < 14){
 
- if(i>=23&&i<=25)
- return {name:"Zgodnje okrevanje",ex:[
- ["Kratka hoja","Če ORL dovoli: 5–15 min"],
- ["Brez napenjanja","Brez uteži, veslača, kolesa, izometrij in carryjev"]
- ]};
+    p.ex =
+      p.ex.map(x => [
 
- if(i>=26)
- return {name:"Postopna vrnitev",ex:[
- ["Hoja","20–30 min zelo lahko, če ORL dovoli"],
- ["Mobilnost","Ramena, kolki, hrbtenica"],
- ["CVET","Samo če je dihanje udobno in ORL nima zadržkov"]
- ]};
+        x[0],
 
- let p=JSON.parse(JSON.stringify(week[i%7]));
+        x[1]
+          .replace("3 × 8","3 × 9–10")
+          .replace("20 m","30 m")
+          .replace("15 s","20 s")
+          .replace("15 min","20 min")
+          .replace("20 min ·","25 min ·")
 
- if(i>=7&&i<14){
-  p.ex=p.ex.map(x=>[
-   x[0],
-   x[1]
-    .replace("3 × 8","3 × 9–10")
-    .replace("20 m","30 m")
-    .replace("15 s","20 s")
-    .replace("15 min","20 min")
-  ]);
- }
+      ]);
 
- if(i>=14&&i<20){
-  p.ex=p.ex.map(x=>{
-   if(!/CVET|Hoja|Mobilnost|Foam|Kolesarjenje/.test(x[0])){
-    return [x[0],x[1]+" · če je lahkotno: +2,5–5 % bremena"];
-   }
-   return x;
-  });
- }
+  }
 
- return p;
+
+  /* TEDEN 3 */
+  if(i >= 14 && i < 21){
+
+    p.ex =
+      p.ex.map(x => {
+
+        if(
+          !/CVET|Hoja|Mobilnost|Foam|Kolesarjenje/.test(x[0])
+        ){
+
+          return [
+            x[0],
+            x[1] +
+            " · če je lahkotno: +2,5–5 % bremena"
+          ];
+
+        }
+
+        return x;
+
+      });
+
+  }
+
+
+  /* TEDEN 4 - DELoad / konsolidacija */
+  if(i >= 21 && i < 28){
+
+    p.ex =
+      p.ex.map(x => {
+
+        if(
+          /CVET|Hoja|Mobilnost|Foam|Kolesarjenje/.test(x[0])
+        ){
+          return x;
+        }
+
+        return [
+          x[0],
+          x[1] +
+          " · ta teden približno 20–30 % manj volumna"
+        ];
+
+      });
+
+  }
+
+
+  /* DAN 29 */
+  if(i === 28){
+
+    return {
+      name:"Zaključni lahek full body",
+      ex:[
+        ["Goblet squat","2 × 8"],
+        ["Sklece","2 × 8"],
+        ["Cable row","2 × 8"],
+        ["Single-leg RDL","2 × 6 / nogo"],
+        ["Suitcase carry","2 × 20 m / stran"],
+        ["Dead hang","2 × 15–20 s"],
+        ["CVET","5–8 ciklov"],
+        ["Hoja / veslač","20 min lahkotno"]
+      ]
+    };
+
+  }
+
+
+  /* DAN 30 */
+  if(i === 29){
+
+    return {
+      name:"Regeneracija + pregled cikla",
+      ex:[
+        ["Hoja","30–45 min lahkotno"],
+        ["CVET","5–10 ciklov"],
+        ["Mobilnost","10 min"],
+        ["Pregled napredka",
+          "Izvozi povzetek in preveri RPE, bremena, počutje in opombe"]
+      ]
+    };
+
+  }
+
+
+  return p;
 }
+
 
 function renderDays(){
- const box=document.getElementById("days");
- box.innerHTML="";
 
- for(let i=0;i<30;i++){
-  let b=document.createElement("button");
-  b.className="day";
+  const box =
+    document.getElementById("days");
 
-  let s=JSON.parse(localStorage.getItem("WT_"+i)||'{"finished":false}');
+  box.innerHTML = "";
 
-  if(i===current)b.classList.add("active");
-  if(s.finished)b.classList.add("finished");
 
-  b.innerText=(i+1)+(s.finished?" ✓":"");
+  for(let i=0; i<30; i++){
 
-  b.onclick=()=>{
-   saveForm();
-   current=i;
-   localStorage.setItem("WT_current",i);
-   render();
-   window.scrollTo(0,0);
-  };
+    let b =
+      document.createElement("button");
 
-  box.appendChild(b);
- }
+    b.className = "day";
+
+
+    let s =
+      JSON.parse(
+        localStorage.getItem("WT_" + i) ||
+        '{"finished":false}'
+      );
+
+
+    if(i === current)
+      b.classList.add("active");
+
+
+    if(s.finished)
+      b.classList.add("finished");
+
+
+    b.innerText =
+      (i + 1) +
+      (s.finished ? " ✓" : "");
+
+
+    b.onclick = () => {
+
+      saveForm();
+
+      current = i;
+
+      tiredMode = false;
+
+      localStorage.setItem(
+        "WT_current",
+        i
+      );
+
+      render();
+
+      window.scrollTo(0,0);
+
+    };
+
+
+    box.appendChild(b);
+
+  }
+
 }
+
 
 function render(){
 
- renderDays();
+  renderDays();
 
- const p=plan(current);
- const s=state();
 
- document.getElementById("title").innerText=
- "DAN "+(current+1)+" · "+p.name;
+  const p = plan(current);
+  const s = state();
 
- document.getElementById("meta").innerText=
- date(current)+" · "+phase(current);
 
- const box=document.getElementById("exercises");
- box.innerHTML="";
+  document.getElementById("title").innerText =
+    "DAN " + (current + 1) +
+    " · " + p.name;
 
- p.ex.forEach((e,i)=>{
 
-  let d=document.createElement("div");
-  d.className="card exercise";
+  document.getElementById("meta").innerText =
+    date(current);
 
-  if(s.done.includes(i))d.classList.add("done");
 
-  d.innerHTML=
-  `<div class="name">${e[0]}</div>
-   <div class="detail">${e[1]}</div>
+  document.getElementById("phaseLabel").innerText =
+    phase(current);
 
-   <div class="controls">
-    <input
-      data-weight="${i}"
-      placeholder="kg / opomba"
-      value="${s.weights[i]||""}">
-    <button class="green"
-      onclick="toggle(${i})">
-      ${s.done.includes(i)?"Razveljavi":"Končano"}
-    </button>
-   </div>`;
 
-  box.appendChild(d);
- });
+  const tiredBtn =
+    document.getElementById("tiredBtn");
 
- let percent=Math.round(s.done.length/p.ex.length*100);
 
- document.getElementById("fill").style.width=percent+"%";
+  tiredBtn.innerText =
+    tiredMode
+    ? "Lažja različica aktivna"
+    : "Danes sem utrujen";
 
- document.getElementById("progressText").innerText=
- s.done.length+"/"+p.ex.length+" · "+percent+" %";
 
- document.getElementById("rpe").value=
- localStorage.getItem(key()+"_rpe")||"";
+  const box =
+    document.getElementById("exercises");
 
- document.getElementById("feel").value=
- localStorage.getItem(key()+"_feel")||"";
 
- document.getElementById("notes").value=
- localStorage.getItem(key()+"_notes")||"";
+  box.innerHTML = "";
+
+
+  p.ex.forEach((e,i)=>{
+
+    let d =
+      document.createElement("div");
+
+
+    d.className =
+      "card exercise";
+
+
+    if(
+      s.done.includes(i)
+    ){
+
+      d.classList.add("done");
+
+    }
+
+
+    let detail = e[1];
+
+
+    if(
+      tiredMode &&
+      !/Hoja|CVET|Mobilnost|Foam|Kolesarjenje|Pregled/.test(e[0])
+    ){
+
+      detail +=
+        " · danes približno 20–30 % manj volumna";
+
+    }
+
+
+    d.innerHTML =
+    `
+      <div class="name">
+        ${e[0]}
+      </div>
+
+      <div class="detail">
+        ${detail}
+      </div>
+
+      <div class="controls">
+
+        <input
+          data-weight="${i}"
+          placeholder="kg / opomba"
+          value="${s.weights[i] || ""}">
+
+        <button
+          class="green"
+          onclick="toggle(${i})">
+
+          ${
+            s.done.includes(i)
+            ? "Razveljavi"
+            : "Končano"
+          }
+
+        </button>
+
+      </div>
+    `;
+
+
+    box.appendChild(d);
+
+  });
+
+
+  let percent =
+    Math.round(
+      s.done.length /
+      p.ex.length *
+      100
+    );
+
+
+  document.getElementById("fill")
+    .style.width =
+    percent + "%";
+
+
+  document.getElementById("progressText")
+    .innerText =
+    s.done.length +
+    "/" +
+    p.ex.length +
+    " · " +
+    percent +
+    " %";
+
+
+  document.getElementById("rpe").value =
+    localStorage.getItem(
+      key() + "_rpe"
+    ) || "";
+
+
+  document.getElementById("feel").value =
+    localStorage.getItem(
+      key() + "_feel"
+    ) || "";
+
+
+  document.getElementById("notes").value =
+    localStorage.getItem(
+      key() + "_notes"
+    ) || "";
+
 }
+
+
+function toggleTired(){
+
+  tiredMode =
+    !tiredMode;
+
+  render();
+
+}
+
 
 function toggle(i){
 
- saveForm();
+  saveForm();
 
- let s=state();
 
- if(s.done.includes(i))
-   s.done=s.done.filter(x=>x!==i);
- else
-   s.done.push(i);
+  let s =
+    state();
 
- save(s);
- render();
+
+  if(
+    s.done.includes(i)
+  ){
+
+    s.done =
+      s.done.filter(
+        x => x !== i
+      );
+
+  }else{
+
+    s.done.push(i);
+
+  }
+
+
+  save(s);
+
+  render();
+
 }
+
 
 function saveForm(){
 
- let s=state();
+  let s =
+    state();
 
- document.querySelectorAll("[data-weight]").forEach(el=>{
-   s.weights[el.dataset.weight]=el.value;
- });
 
- save(s);
+  document
+    .querySelectorAll(
+      "[data-weight]"
+    )
+    .forEach(el => {
 
- localStorage.setItem(key()+"_rpe",
- document.getElementById("rpe").value);
+      s.weights[
+        el.dataset.weight
+      ] = el.value;
 
- localStorage.setItem(key()+"_feel",
- document.getElementById("feel").value);
+    });
 
- localStorage.setItem(key()+"_notes",
- document.getElementById("notes").value);
+
+  save(s);
+
+
+  localStorage.setItem(
+    key() + "_rpe",
+    document.getElementById("rpe").value
+  );
+
+
+  localStorage.setItem(
+    key() + "_feel",
+    document.getElementById("feel").value
+  );
+
+
+  localStorage.setItem(
+    key() + "_notes",
+    document.getElementById("notes").value
+  );
+
 }
+
 
 function finish(){
 
- saveForm();
+  saveForm();
 
- let s=state();
- s.finished=true;
- save(s);
 
- render();
- alert("Dan zaključen.");
+  let s =
+    state();
+
+
+  s.finished = true;
+
+
+  save(s);
+
+
+  render();
+
+
+  alert(
+    "Dan zaključen."
+  );
+
 }
+
 
 function resetDay(){
 
- if(!confirm("Ponastavim ta dan?"))return;
+  if(
+    !confirm(
+      "Ponastavim ta dan?"
+    )
+  ){
+    return;
+  }
 
- localStorage.removeItem(key());
- localStorage.removeItem(key()+"_rpe");
- localStorage.removeItem(key()+"_feel");
- localStorage.removeItem(key()+"_notes");
 
- render();
+  localStorage.removeItem(
+    key()
+  );
+
+
+  localStorage.removeItem(
+    key() + "_rpe"
+  );
+
+
+  localStorage.removeItem(
+    key() + "_feel"
+  );
+
+
+  localStorage.removeItem(
+    key() + "_notes"
+  );
+
+
+  render();
+
 }
+
 
 function display(sec){
 
- let m=Math.floor(sec/60);
- let s=sec%60;
+  let m =
+    Math.floor(sec / 60);
 
- document.getElementById("clock").innerText=
- String(m).padStart(2,"0")+":"+
- String(s).padStart(2,"0");
+
+  let s =
+    sec % 60;
+
+
+  document.getElementById("clock")
+    .innerText =
+    String(m).padStart(2,"0") +
+    ":" +
+    String(s).padStart(2,"0");
+
 }
+
 
 function startTimer(sec){
 
- if(timer)clearInterval(timer);
+  if(timer)
+    clearInterval(timer);
 
- display(sec);
 
- timer=setInterval(()=>{
+  display(sec);
 
-   sec--;
-   display(Math.max(sec,0));
 
-   if(sec<=0){
-     clearInterval(timer);
-     timer=null;
-   }
+  timer =
+    setInterval(()=>{
 
- },1000);
+      sec--;
+
+      display(
+        Math.max(sec,0)
+      );
+
+
+      if(sec <= 0){
+
+        clearInterval(timer);
+
+        timer = null;
+
+      }
+
+    },1000);
+
 }
+
 
 function stopTimer(){
 
- if(timer)clearInterval(timer);
- timer=null;
- display(0);
+  if(timer)
+    clearInterval(timer);
+
+
+  timer = null;
+
+
+  display(0);
+
 }
 
-document.addEventListener("change",saveForm);
+
+function exportSummary(){
+
+  saveForm();
+
+
+  let lines = [];
+
+
+  lines.push(
+    "WARRIOR TETRAD - POVZETEK NAPREDKA"
+  );
+
+
+  lines.push(
+    ""
+  );
+
+
+  for(let i=0; i<30; i++){
+
+    const p =
+      plan(i);
+
+
+    const s =
+      JSON.parse(
+        localStorage.getItem(
+          "WT_" + i
+        ) ||
+        '{"done":[],"weights":{},"finished":false}'
+      );
+
+
+    const rpe =
+      localStorage.getItem(
+        "WT_" + i + "_rpe"
+      ) || "";
+
+
+    const feel =
+      localStorage.getItem(
+        "WT_" + i + "_feel"
+      ) || "";
+
+
+    const notes =
+      localStorage.getItem(
+        "WT_" + i + "_notes"
+      ) || "";
+
+
+    const hasWeights =
+      Object.values(
+        s.weights || {}
+      ).some(v => v);
+
+
+    if(
+      !s.finished &&
+      s.done.length === 0 &&
+      !rpe &&
+      !feel &&
+      !notes &&
+      !hasWeights
+    ){
+
+      continue;
+
+    }
+
+
+    lines.push(
+      "DAN " +
+      (i + 1) +
+      " | " +
+      date(i) +
+      " | " +
+      p.name
+    );
+
+
+    lines.push(
+      "Faza: " +
+      phase(i)
+    );
+
+
+    if(
+      s.finished
+    ){
+
+      lines.push(
+        "Status: zaključen"
+      );
+
+    }
+
+
+    if(rpe){
+
+      lines.push(
+        "RPE: " + rpe
+      );
+
+    }
+
+
+    if(feel){
+
+      lines.push(
+        "Občutek: " + feel
+      );
+
+    }
+
+
+    p.ex.forEach(
+      (exercise,index)=>{
+
+        const weight =
+          s.weights &&
+          s.weights[index]
+          ? s.weights[index]
+          : "";
+
+
+        const isDone =
+          s.done.includes(index);
+
+
+        if(
+          weight ||
+          isDone
+        ){
+
+          lines.push(
+            (isDone ? "✓ " : "- ") +
+            exercise[0] +
+            (weight
+              ? " | " + weight
+              : "")
+          );
+
+        }
+
+      }
+    );
+
+
+    if(notes){
+
+      lines.push(
+        "Opomba: " + notes
+      );
+
+    }
+
+
+    lines.push(
+      ""
+    );
+
+  }
+
+
+  const text =
+    lines.join("\n");
+
+
+  const box =
+    document.getElementById(
+      "exportBox"
+    );
+
+
+  box.value =
+    text;
+
+
+  box.style.height =
+    "auto";
+
+
+  box.style.height =
+    Math.min(
+      box.scrollHeight,
+      700
+    ) + "px";
+
+}
+
+
+function selectSummary(){
+
+  const box =
+    document.getElementById(
+      "exportBox"
+    );
+
+
+  box.focus();
+
+  box.select();
+
+}
+
+
+function exportBackup(){
+
+  saveForm();
+
+
+  const backup = {
+
+    version:2,
+
+    exportedAt:
+      new Date()
+        .toISOString(),
+
+    currentDay:
+      localStorage.getItem(
+        "WT_current"
+      ) || "0",
+
+    data:{}
+
+  };
+
+
+  for(let i=0; i<30; i++){
+
+    backup.data[i] = {
+
+      state:
+        localStorage.getItem(
+          "WT_" + i
+        ),
+
+      rpe:
+        localStorage.getItem(
+          "WT_" + i + "_rpe"
+        ),
+
+      feel:
+        localStorage.getItem(
+          "WT_" + i + "_feel"
+        ),
+
+      notes:
+        localStorage.getItem(
+          "WT_" + i + "_notes"
+        )
+
+    };
+
+  }
+
+
+  const blob =
+    new Blob(
+
+      [
+        JSON.stringify(
+          backup,
+          null,
+          2
+        )
+      ],
+
+      {
+        type:
+        "application/json"
+      }
+
+    );
+
+
+  const url =
+    URL.createObjectURL(
+      blob
+    );
+
+
+  const link =
+    document.createElement(
+      "a"
+    );
+
+
+  link.href =
+    url;
+
+
+  link.download =
+    "warrior-tetrad-backup-" +
+    new Date()
+      .toISOString()
+      .slice(0,10) +
+    ".json";
+
+
+  document.body
+    .appendChild(link);
+
+
+  link.click();
+
+
+  link.remove();
+
+
+  setTimeout(()=>{
+
+    URL.revokeObjectURL(
+      url
+    );
+
+  },1000);
+
+}
+
+
+function importBackup(event){
+
+  const file =
+    event.target.files[0];
+
+
+  if(!file)
+    return;
+
+
+  const reader =
+    new FileReader();
+
+
+  reader.onload =
+    function(){
+
+
+      try{
+
+
+        const backup =
+          JSON.parse(
+            reader.result
+          );
+
+
+        if(
+          !backup ||
+          !backup.data
+        ){
+
+          throw new Error(
+            "Neveljavna varnostna kopija."
+          );
+
+        }
+
+
+        if(
+          !confirm(
+            "Uvoz bo zamenjal trenutno shranjene podatke. Nadaljujem?"
+          )
+        ){
+
+          event.target.value =
+            "";
+
+          return;
+
+        }
+
+
+        for(let i=0; i<30; i++){
+
+
+          const item =
+            backup.data[i] ||
+            backup.data[
+              String(i)
+            ];
+
+
+          if(!item)
+            continue;
+
+
+          const prefix =
+            "WT_" + i;
+
+
+          if(
+            item.state !== null &&
+            item.state !== undefined
+          ){
+
+            localStorage.setItem(
+              prefix,
+              item.state
+            );
+
+          }else{
+
+            localStorage.removeItem(
+              prefix
+            );
+
+          }
+
+
+          if(
+            item.rpe !== null &&
+            item.rpe !== undefined
+          ){
+
+            localStorage.setItem(
+              prefix + "_rpe",
+              item.rpe
+            );
+
+          }else{
+
+            localStorage.removeItem(
+              prefix + "_rpe"
+            );
+
+          }
+
+
+          if(
+            item.feel !== null &&
+            item.feel !== undefined
+          ){
+
+            localStorage.setItem(
+              prefix + "_feel",
+              item.feel
+            );
+
+          }else{
+
+            localStorage.removeItem(
+              prefix + "_feel"
+            );
+
+          }
+
+
+          if(
+            item.notes !== null &&
+            item.notes !== undefined
+          ){
+
+            localStorage.setItem(
+              prefix + "_notes",
+              item.notes
+            );
+
+          }else{
+
+            localStorage.removeItem(
+              prefix + "_notes"
+            );
+
+          }
+
+        }
+
+
+        if(
+          backup.currentDay !== undefined
+        ){
+
+          localStorage.setItem(
+            "WT_current",
+            backup.currentDay
+          );
+
+
+          current =
+            Number(
+              backup.currentDay
+            ) || 0;
+
+        }
+
+
+        alert(
+          "Podatki so uspešno uvoženi."
+        );
+
+
+        render();
+
+
+      }catch(error){
+
+
+        alert(
+          "Datoteke ni bilo mogoče uvoziti: " +
+          error.message
+        );
+
+
+      }
+
+
+      event.target.value =
+        "";
+
+    };
+
+
+  reader.readAsText(
+    file
+  );
+
+}
+
+
+document.addEventListener(
+  "change",
+  saveForm
+);
+
 
 render();
+
 </script>
 
 </body>
