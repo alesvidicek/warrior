@@ -37,7 +37,7 @@ body{
 main{
   max-width:760px;
   margin:auto;
-  padding:20px 14px 70px;
+  padding:20px 14px 80px;
 }
 
 h1{
@@ -107,6 +107,11 @@ button{
   color:white;
 }
 
+.gold{
+  background:var(--gold);
+  color:#111;
+}
+
 .exercise{
   border-bottom:1px solid var(--line);
   padding:13px 0;
@@ -132,17 +137,12 @@ button{
   opacity:.5;
 }
 
-.controls{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  align-items:center;
-}
-
+.controls,
 .row{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
+  align-items:center;
 }
 
 input,
@@ -180,11 +180,19 @@ textarea{
 }
 
 .timer{
-  font-size:42px;
+  font-size:48px;
   font-weight:800;
   text-align:center;
   color:var(--gold);
   margin:10px;
+  font-variant-numeric:tabular-nums;
+}
+
+.timer-label{
+  text-align:center;
+  color:var(--muted);
+  font-size:14px;
+  min-height:20px;
 }
 
 .small{
@@ -210,36 +218,26 @@ textarea{
   font-size:13px;
 }
 
-/* MINI TIMER PRI VAJI */
-
-.inline-timer{
+.quick-timer{
   margin-top:12px;
-  padding:11px;
-  background:#111610;
+  padding:10px;
   border:1px solid var(--line);
   border-radius:11px;
+  background:#111610;
 }
 
-.inline-timer-title{
-  font-size:12px;
+.quick-title{
   color:var(--muted);
-  margin-bottom:4px;
-}
-
-.inline-timer-display{
-  color:var(--gold);
-  font-weight:800;
-  font-size:27px;
-  font-variant-numeric:tabular-nums;
+  font-size:13px;
   margin-bottom:8px;
 }
 
-.inline-timer.running{
-  border-color:var(--gold);
-}
-
-.inline-timer.finished{
-  border-color:var(--green);
+.quick-btn{
+  background:#394739;
+  color:white;
+  padding:7px 10px;
+  min-height:38px;
+  font-size:13px;
 }
 
 @media (min-width:650px){
@@ -323,6 +321,37 @@ textarea{
   </div>
 </div>
 
+<div class="card" id="mainTimerCard">
+  <b>Glavni timer</b>
+
+  <div id="timerLabel" class="timer-label">
+    Izberi čas pri vaji ali spodaj
+  </div>
+
+  <div id="clock" class="timer">00:00</div>
+
+  <div class="row">
+    <button class="dark" onclick="startTimer(15,'Ročni timer')">15 s</button>
+    <button class="dark" onclick="startTimer(20,'Ročni timer')">20 s</button>
+    <button class="dark" onclick="startTimer(30,'Ročni timer')">30 s</button>
+    <button class="dark" onclick="startTimer(45,'Ročni timer')">45 s</button>
+    <button class="dark" onclick="startTimer(60,'Ročni timer')">60 s</button>
+    <button class="red" onclick="stopTimer()">STOP</button>
+  </div>
+
+  <div class="small" style="margin-top:12px">
+    Kondicija:
+  </div>
+
+  <div class="row" style="margin-top:6px">
+    <button class="dark" onclick="startTimer(300,'Kondicija · 5 min')">5 min</button>
+    <button class="dark" onclick="startTimer(600,'Kondicija · 10 min')">10 min</button>
+    <button class="dark" onclick="startTimer(900,'Kondicija · 15 min')">15 min</button>
+    <button class="dark" onclick="startTimer(1200,'Kondicija · 20 min')">20 min</button>
+    <button class="dark" onclick="startTimer(1800,'Kondicija · 30 min')">30 min</button>
+  </div>
+</div>
+
 <div class="card">
   <b>Podatki in varnostna kopija</b>
 
@@ -366,27 +395,9 @@ textarea{
   </div>
 </div>
 
-<div class="card">
-  <b>Glavni timer</b>
-
-  <div id="clock" class="timer">00:00</div>
-
-  <div class="row">
-    <button class="dark" onclick="startTimer(15)">15 s</button>
-    <button class="dark" onclick="startTimer(20)">20 s</button>
-    <button class="dark" onclick="startTimer(30)">30 s</button>
-    <button class="dark" onclick="startTimer(60)">60 s</button>
-    <button class="red" onclick="stopTimer()">STOP</button>
-  </div>
-</div>
-
 </main>
 
 <script>
-
-/* ==============================
-   PROGRAM
-================================ */
 
 const startDate = new Date(2026,8,22);
 
@@ -479,51 +490,28 @@ const week = [
 
 ];
 
-
-/* ==============================
-   STANJE
-================================ */
-
 let current = Number(localStorage.getItem("WT_current") || 0);
-
 let timer = null;
 let tiredMode = false;
 
-const inlineTimers = {};
-
-
-/* ==============================
-   SHRANJEVANJE
-================================ */
 
 function key(){
   return "WT_" + current;
 }
 
-
 function state(){
-
   return JSON.parse(
     localStorage.getItem(key()) ||
     '{"done":[],"weights":{},"finished":false}'
   );
-
 }
 
-
 function save(s){
-
   localStorage.setItem(
     key(),
     JSON.stringify(s)
   );
-
 }
-
-
-/* ==============================
-   FAZE
-================================ */
 
 function phase(i){
 
@@ -540,9 +528,7 @@ function phase(i){
     return "TEDEN 4 · konsolidacija / deload";
 
   return "ZAKLJUČEK CIKLA";
-
 }
-
 
 function date(i){
 
@@ -553,13 +539,7 @@ function date(i){
   );
 
   return d.toLocaleDateString("sl-SI");
-
 }
-
-
-/* ==============================
-   PROGRESIJA
-================================ */
 
 function plan(i){
 
@@ -569,9 +549,6 @@ function plan(i){
         week[i % 7]
       )
     );
-
-
-  /* TEDEN 2 */
 
   if(i >= 7 && i < 14){
 
@@ -590,9 +567,6 @@ function plan(i){
       ]);
 
   }
-
-
-  /* TEDEN 3 */
 
   if(i >= 14 && i < 21){
 
@@ -617,9 +591,6 @@ function plan(i){
 
   }
 
-
-  /* TEDEN 4 */
-
   if(i >= 21 && i < 28){
 
     p.ex =
@@ -641,9 +612,6 @@ function plan(i){
 
   }
 
-
-  /* DAN 29 */
-
   if(i === 28){
 
     return {
@@ -651,31 +619,19 @@ function plan(i){
       name:"Zaključni lahek full body",
 
       ex:[
-
         ["Goblet squat","2 × 8"],
-
         ["Sklece","2 × 8"],
-
         ["Cable row","2 × 8"],
-
         ["Single-leg RDL","2 × 6 / nogo"],
-
         ["Suitcase carry","2 × 20 m / stran"],
-
         ["Dead hang","2 × 15–20 s"],
-
         ["CVET","5–8 ciklov"],
-
         ["Hoja / veslač","20 min lahkotno"]
-
       ]
 
     };
 
   }
-
-
-  /* DAN 30 */
 
   if(i === 29){
 
@@ -684,385 +640,204 @@ function plan(i){
       name:"Regeneracija + pregled cikla",
 
       ex:[
-
         ["Hoja","30–45 min lahkotno"],
-
         ["CVET","5–10 ciklov"],
-
         ["Mobilnost","10 min"],
-
         ["Pregled napredka",
           "Izvozi povzetek in preveri RPE, bremena, počutje in opombe"]
-
       ]
 
     };
 
   }
 
-
   return p;
-
 }
 
 
-/* ==============================
-   INLINE TIMERJI
-================================ */
+/* ========================================
+   VRSTA TIMERJA PRI POSAMEZNI VAJI
+======================================== */
 
-function formatInlineTime(sec){
-
-  const m =
-    Math.floor(sec / 60);
-
-  const s =
-    sec % 60;
-
-  return (
-    String(m).padStart(2,"0") +
-    ":" +
-    String(s).padStart(2,"0")
-  );
-
-}
-
-
-function isTimedExercise(name){
+function isShortTimedExercise(name){
 
   return [
-
     "Dead hang",
-
     "Towel hang",
-
     "Wall sit",
-
     "Static lunge hold"
-
   ].includes(name);
 
 }
 
+function isConditioningExercise(name){
 
-function getExerciseSeconds(name,detail){
+  return [
+    "Veslač",
+    "Veslač / orbitrek / hoja",
+    "Hoja / veslač",
+    "Legionarski zaključek",
+    "Hoja / kolo",
+    "Hoja",
+    "Kolesarjenje",
+    "Foam roller",
+    "Mobilnost"
+  ].includes(name);
 
-  const match =
-    detail.match(
-      /(\d+)(?:\s*[–-]\s*(\d+))?\s*s/
-    );
+}
 
+function quickTimerHtml(name){
 
-  if(match){
+  if(isShortTimedExercise(name)){
 
-    return Number(match[1]);
+    return `
+      <div class="quick-timer">
+
+        <div class="quick-title">
+          Nastavi glavni timer
+        </div>
+
+        <div class="row">
+
+          <button class="quick-btn"
+            onclick="runExerciseTimer('${escapeQuotes(name)}',15)">
+            15 s
+          </button>
+
+          <button class="quick-btn"
+            onclick="runExerciseTimer('${escapeQuotes(name)}',20)">
+            20 s
+          </button>
+
+          <button class="quick-btn"
+            onclick="runExerciseTimer('${escapeQuotes(name)}',30)">
+            30 s
+          </button>
+
+          <button class="quick-btn"
+            onclick="runExerciseTimer('${escapeQuotes(name)}',45)">
+            45 s
+          </button>
+
+          <button class="quick-btn"
+            onclick="runExerciseTimer('${escapeQuotes(name)}',60)">
+            60 s
+          </button>
+
+        </div>
+
+      </div>
+    `;
 
   }
 
+  if(isConditioningExercise(name)){
 
-  if(name === "Dead hang")
-    return 15;
+    return `
+      <div class="quick-timer">
 
-  if(name === "Towel hang")
-    return 10;
+        <div class="quick-title">
+          Nastavi glavni timer
+        </div>
 
-  if(name === "Wall sit")
-    return 15;
+        <div class="row">
 
-  if(name === "Static lunge hold")
-    return 15;
+          <button class="quick-btn"
+            onclick="runExerciseTimer('${escapeQuotes(name)}',300)">
+            5 min
+          </button>
 
+          <button class="quick-btn"
+            onclick="runExerciseTimer('${escapeQuotes(name)}',600)">
+            10 min
+          </button>
 
-  return null;
+          <button class="quick-btn"
+            onclick="runExerciseTimer('${escapeQuotes(name)}',900)">
+            15 min
+          </button>
+
+          <button class="quick-btn"
+            onclick="runExerciseTimer('${escapeQuotes(name)}',1200)">
+            20 min
+          </button>
+
+          <button class="quick-btn"
+            onclick="runExerciseTimer('${escapeQuotes(name)}',1800)">
+            30 min
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+  }
+
+  return "";
+}
+
+function escapeQuotes(text){
+
+  return text
+    .replace(/\\/g,"\\\\")
+    .replace(/'/g,"\\'");
 
 }
 
 
-function startInlineTimer(index,seconds){
-
-  stopInlineTimer(index);
-
-
-  let remaining =
-    seconds;
-
-
-  const display =
-    document.getElementById(
-      "inlineTimerDisplay_" + index
-    );
-
-
-  const box =
-    document.getElementById(
-      "inlineTimerBox_" + index
-    );
-
-
-  if(!display)
-    return;
-
-
-  if(box){
-
-    box.classList.remove(
-      "finished"
-    );
-
-    box.classList.add(
-      "running"
-    );
-
-  }
-
-
-  display.innerText =
-    formatInlineTime(
-      remaining
-    );
-
-
-  inlineTimers[index] =
-    setInterval(()=>{
-
-
-      remaining--;
-
-
-      display.innerText =
-        formatInlineTime(
-          Math.max(
-            remaining,
-            0
-          )
-        );
-
-
-      if(
-        remaining <= 0
-      ){
-
-
-        clearInterval(
-          inlineTimers[index]
-        );
-
-
-        delete inlineTimers[index];
-
-
-        if(box){
-
-          box.classList.remove(
-            "running"
-          );
-
-          box.classList.add(
-            "finished"
-          );
-
-        }
-
-
-        try{
-
-          if(navigator.vibrate){
-
-            navigator.vibrate(
-              [150,100,150]
-            );
-
-          }
-
-        }catch(e){}
-
-      }
-
-    },1000);
-
-}
-
-
-function stopInlineTimer(index){
-
-  if(
-    inlineTimers[index]
-  ){
-
-    clearInterval(
-      inlineTimers[index]
-    );
-
-    delete inlineTimers[index];
-
-  }
-
-}
-
-
-function resetInlineTimer(index,seconds){
-
-  stopInlineTimer(index);
-
-
-  const display =
-    document.getElementById(
-      "inlineTimerDisplay_" + index
-    );
-
-
-  const box =
-    document.getElementById(
-      "inlineTimerBox_" + index
-    );
-
-
-  if(display){
-
-    display.innerText =
-      formatInlineTime(
-        seconds
-      );
-
-  }
-
-
-  if(box){
-
-    box.classList.remove(
-      "running",
-      "finished"
-    );
-
-  }
-
-}
-
-
-function stopAllInlineTimers(){
-
-  Object.keys(
-    inlineTimers
-  )
-  .forEach(index => {
-
-    clearInterval(
-      inlineTimers[index]
-    );
-
-  });
-
-
-  for(
-    const k in inlineTimers
-  ){
-
-    delete inlineTimers[k];
-
-  }
-
-}
-
-
-/* ==============================
+/* ========================================
    RENDER DNI
-================================ */
+======================================== */
 
 function renderDays(){
 
   const box =
     document.getElementById("days");
 
-
   box.innerHTML = "";
 
-
-  for(
-    let i=0;
-    i<30;
-    i++
-  ){
+  for(let i=0; i<30; i++){
 
     let b =
-      document.createElement(
-        "button"
-      );
+      document.createElement("button");
 
-
-    b.className =
-      "day";
-
+    b.className = "day";
 
     let s =
       JSON.parse(
-        localStorage.getItem(
-          "WT_" + i
-        ) ||
+        localStorage.getItem("WT_" + i) ||
         '{"finished":false}'
       );
 
+    if(i === current)
+      b.classList.add("active");
 
-    if(
-      i === current
-    ){
-
-      b.classList.add(
-        "active"
-      );
-
-    }
-
-
-    if(
-      s.finished
-    ){
-
-      b.classList.add(
-        "finished"
-      );
-
-    }
-
+    if(s.finished)
+      b.classList.add("finished");
 
     b.innerText =
       (i + 1) +
-      (
-        s.finished
-        ? " ✓"
-        : ""
-      );
-
+      (s.finished ? " ✓" : "");
 
     b.onclick = () => {
 
-
       saveForm();
-
-
-      stopAllInlineTimers();
-
 
       current = i;
 
-
       tiredMode = false;
-
 
       localStorage.setItem(
         "WT_current",
         i
       );
 
-
       render();
 
-
-      window.scrollTo(
-        0,
-        0
-      );
+      window.scrollTo(0,0);
 
     };
-
 
     box.appendChild(b);
 
@@ -1071,227 +846,115 @@ function renderDays(){
 }
 
 
-/* ==============================
-   RENDER VADBE
-================================ */
+/* ========================================
+   RENDER
+======================================== */
 
 function render(){
 
-  stopAllInlineTimers();
-
-
   renderDays();
-
 
   const p =
     plan(current);
 
-
   const s =
     state();
 
-
   document
-    .getElementById(
-      "title"
-    )
+    .getElementById("title")
     .innerText =
     "DAN " +
     (current + 1) +
     " · " +
     p.name;
 
-
   document
-    .getElementById(
-      "meta"
-    )
+    .getElementById("meta")
     .innerText =
     date(current);
 
-
   document
-    .getElementById(
-      "phaseLabel"
-    )
+    .getElementById("phaseLabel")
     .innerText =
     phase(current);
 
-
   const tiredBtn =
-    document
-      .getElementById(
-        "tiredBtn"
-      );
-
+    document.getElementById("tiredBtn");
 
   tiredBtn.innerText =
     tiredMode
     ? "Lažja različica aktivna"
     : "Danes sem utrujen";
 
-
   const box =
-    document
-      .getElementById(
-        "exercises"
-      );
-
+    document.getElementById("exercises");
 
   box.innerHTML = "";
 
+  p.ex.forEach((e,i)=>{
 
-  p.ex.forEach(
-    (e,i)=>{
+    let d =
+      document.createElement("div");
 
+    d.className =
+      "card exercise";
 
-      let d =
-        document.createElement(
-          "div"
-        );
+    if(
+      s.done.includes(i)
+    ){
+      d.classList.add("done");
+    }
 
+    let detail =
+      e[1];
 
-      d.className =
-        "card exercise";
+    if(
+      tiredMode &&
+      !/Hoja|CVET|Mobilnost|Foam|Kolesarjenje|Pregled/.test(e[0])
+    ){
 
-
-      if(
-        s.done.includes(i)
-      ){
-
-        d.classList.add(
-          "done"
-        );
-
-      }
-
-
-      let detail =
-        e[1];
-
-
-      if(
-        tiredMode &&
-        !/Hoja|CVET|Mobilnost|Foam|Kolesarjenje|Pregled/.test(e[0])
-      ){
-
-        detail +=
-          " · danes približno 20–30 % manj volumna";
-
-      }
-
-
-      const timed =
-        isTimedExercise(
-          e[0]
-        );
-
-
-      const seconds =
-        timed
-        ? getExerciseSeconds(
-            e[0],
-            detail
-          )
-        : null;
-
-
-      let timerHtml = "";
-
-
-      if(
-        timed &&
-        seconds
-      ){
-
-
-        timerHtml =
-        `
-        <div
-          id="inlineTimerBox_${i}"
-          class="inline-timer">
-
-          <div
-            class="inline-timer-title">
-
-            Čas izvajanja
-
-          </div>
-
-          <div
-            id="inlineTimerDisplay_${i}"
-            class="inline-timer-display">
-
-            ${formatInlineTime(seconds)}
-
-          </div>
-
-          <div class="row">
-
-            <button
-              class="dark"
-              onclick="startInlineTimer(${i},${seconds})">
-
-              START
-
-            </button>
-
-            <button
-              class="red"
-              onclick="resetInlineTimer(${i},${seconds})">
-
-              RESET
-
-            </button>
-
-          </div>
-
-        </div>
-        `;
-
-      }
-
-
-      d.innerHTML =
-      `
-        <div class="name">
-          ${e[0]}
-        </div>
-
-        <div class="detail">
-          ${detail}
-        </div>
-
-        <div class="controls">
-
-          <input
-            data-weight="${i}"
-            placeholder="kg / opomba"
-            value="${s.weights[i] || ""}">
-
-          <button
-            class="green"
-            onclick="toggle(${i})">
-
-            ${
-              s.done.includes(i)
-              ? "Razveljavi"
-              : "Končano"
-            }
-
-          </button>
-
-        </div>
-
-        ${timerHtml}
-      `;
-
-
-      box.appendChild(d);
+      detail +=
+        " · danes približno 20–30 % manj volumna";
 
     }
-  );
 
+    d.innerHTML =
+    `
+      <div class="name">
+        ${e[0]}
+      </div>
+
+      <div class="detail">
+        ${detail}
+      </div>
+
+      <div class="controls">
+
+        <input
+          data-weight="${i}"
+          placeholder="kg / opomba"
+          value="${s.weights[i] || ""}">
+
+        <button
+          class="green"
+          onclick="toggle(${i})">
+
+          ${
+            s.done.includes(i)
+            ? "Razveljavi"
+            : "Končano"
+          }
+
+        </button>
+
+      </div>
+
+      ${quickTimerHtml(e[0])}
+    `;
+
+    box.appendChild(d);
+
+  });
 
   let percent =
     Math.round(
@@ -1300,19 +963,13 @@ function render(){
       100
     );
 
-
   document
-    .getElementById(
-      "fill"
-    )
+    .getElementById("fill")
     .style.width =
     percent + "%";
 
-
   document
-    .getElementById(
-      "progressText"
-    )
+    .getElementById("progressText")
     .innerText =
     s.done.length +
     "/" +
@@ -1321,31 +978,22 @@ function render(){
     percent +
     " %";
 
-
   document
-    .getElementById(
-      "rpe"
-    )
+    .getElementById("rpe")
     .value =
     localStorage.getItem(
       key() + "_rpe"
     ) || "";
 
-
   document
-    .getElementById(
-      "feel"
-    )
+    .getElementById("feel")
     .value =
     localStorage.getItem(
       key() + "_feel"
     ) || "";
 
-
   document
-    .getElementById(
-      "notes"
-    )
+    .getElementById("notes")
     .value =
     localStorage.getItem(
       key() + "_notes"
@@ -1354,33 +1002,30 @@ function render(){
 }
 
 
-/* ==============================
+/* ========================================
    LAŽJI DAN
-================================ */
+======================================== */
 
 function toggleTired(){
 
   tiredMode =
     !tiredMode;
 
-
   render();
 
 }
 
 
-/* ==============================
+/* ========================================
    KONČANO
-================================ */
+======================================== */
 
 function toggle(i){
 
   saveForm();
 
-
   let s =
     state();
-
 
   if(
     s.done.includes(i)
@@ -1397,107 +1042,70 @@ function toggle(i){
 
   }
 
-
   save(s);
-
 
   render();
 
 }
 
 
-/* ==============================
-   SHRANJEVANJE OBRAZCA
-================================ */
+/* ========================================
+   SHRANJEVANJE
+======================================== */
 
 function saveForm(){
 
   let s =
     state();
 
-
   document
-    .querySelectorAll(
-      "[data-weight]"
-    )
+    .querySelectorAll("[data-weight]")
     .forEach(el => {
-
 
       s.weights[
         el.dataset.weight
       ] =
         el.value;
 
-
     });
-
 
   save(s);
 
-
   localStorage.setItem(
-
     key() + "_rpe",
-
-    document
-      .getElementById(
-        "rpe"
-      )
-      .value
-
+    document.getElementById("rpe").value
   );
 
-
   localStorage.setItem(
-
     key() + "_feel",
-
-    document
-      .getElementById(
-        "feel"
-      )
-      .value
-
+    document.getElementById("feel").value
   );
 
-
   localStorage.setItem(
-
     key() + "_notes",
-
-    document
-      .getElementById(
-        "notes"
-      )
-      .value
-
+    document.getElementById("notes").value
   );
 
 }
 
 
-/* ==============================
+/* ========================================
    ZAKLJUČEK
-================================ */
+======================================== */
 
 function finish(){
 
   saveForm();
 
-
   let s =
     state();
-
 
   s.finished =
     true;
 
-
   save(s);
 
-
   render();
-
 
   alert(
     "Dan zaključen."
@@ -1506,9 +1114,9 @@ function finish(){
 }
 
 
-/* ==============================
+/* ========================================
    RESET
-================================ */
+======================================== */
 
 function resetDay(){
 
@@ -1522,38 +1130,30 @@ function resetDay(){
 
   }
 
-
-  stopAllInlineTimers();
-
-
   localStorage.removeItem(
     key()
   );
-
 
   localStorage.removeItem(
     key() + "_rpe"
   );
 
-
   localStorage.removeItem(
     key() + "_feel"
   );
 
-
   localStorage.removeItem(
     key() + "_notes"
   );
-
 
   render();
 
 }
 
 
-/* ==============================
+/* ========================================
    GLAVNI TIMER
-================================ */
+======================================== */
 
 function display(sec){
 
@@ -1562,32 +1162,20 @@ function display(sec){
       sec / 60
     );
 
-
   let s =
     sec % 60;
 
-
   document
-    .getElementById(
-      "clock"
-    )
+    .getElementById("clock")
     .innerText =
-    String(m)
-      .padStart(
-        2,
-        "0"
-      ) +
+    String(m).padStart(2,"0") +
     ":" +
-    String(s)
-      .padStart(
-        2,
-        "0"
-      );
+    String(s).padStart(2,"0");
 
 }
 
 
-function startTimer(sec){
+function startTimer(sec,label){
 
   if(timer){
 
@@ -1597,16 +1185,17 @@ function startTimer(sec){
 
   }
 
+  document
+    .getElementById("timerLabel")
+    .innerText =
+    label || "Timer";
 
   display(sec);
-
 
   timer =
     setInterval(()=>{
 
-
       sec--;
-
 
       display(
         Math.max(
@@ -1615,25 +1204,42 @@ function startTimer(sec){
         )
       );
 
-
       if(
         sec <= 0
       ){
-
 
         clearInterval(
           timer
         );
 
-
         timer =
           null;
 
+        document
+          .getElementById("timerLabel")
+          .innerText =
+          "Končano";
 
       }
 
-
     },1000);
+
+}
+
+
+function runExerciseTimer(name,seconds){
+
+  startTimer(
+    seconds,
+    name
+  );
+
+  document
+    .getElementById("mainTimerCard")
+    .scrollIntoView({
+      behavior:"smooth",
+      block:"center"
+    });
 
 }
 
@@ -1648,35 +1254,34 @@ function stopTimer(){
 
   }
 
-
   timer =
     null;
 
-
   display(0);
+
+  document
+    .getElementById("timerLabel")
+    .innerText =
+    "Timer ustavljen";
 
 }
 
 
-/* ==============================
+/* ========================================
    IZVOZ POVZETKA
-================================ */
+======================================== */
 
 function exportSummary(){
 
   saveForm();
 
-
   let lines = [];
-
 
   lines.push(
     "WARRIOR TETRAD - POVZETEK NAPREDKA"
   );
 
-
   lines.push("");
-
 
   for(
     let i=0;
@@ -1684,40 +1289,31 @@ function exportSummary(){
     i++
   ){
 
-
     const p =
       plan(i);
 
-
     const s =
       JSON.parse(
-
         localStorage.getItem(
           "WT_" + i
         ) ||
-
         '{"done":[],"weights":{},"finished":false}'
-
       );
-
 
     const rpe =
       localStorage.getItem(
         "WT_" + i + "_rpe"
       ) || "";
 
-
     const feel =
       localStorage.getItem(
         "WT_" + i + "_feel"
       ) || "";
 
-
     const notes =
       localStorage.getItem(
         "WT_" + i + "_notes"
       ) || "";
-
 
     const hasWeights =
       Object.values(
@@ -1726,7 +1322,6 @@ function exportSummary(){
       .some(
         v => v
       );
-
 
     if(
       !s.finished &&
@@ -1741,7 +1336,6 @@ function exportSummary(){
 
     }
 
-
     lines.push(
       "DAN " +
       (i + 1) +
@@ -1751,12 +1345,10 @@ function exportSummary(){
       p.name
     );
 
-
     lines.push(
       "Faza: " +
       phase(i)
     );
-
 
     if(
       s.finished
@@ -1768,7 +1360,6 @@ function exportSummary(){
 
     }
 
-
     if(rpe){
 
       lines.push(
@@ -1777,7 +1368,6 @@ function exportSummary(){
       );
 
     }
-
 
     if(feel){
 
@@ -1788,10 +1378,8 @@ function exportSummary(){
 
     }
 
-
     p.ex.forEach(
       (exercise,index)=>{
-
 
         const weight =
           s.weights &&
@@ -1799,18 +1387,15 @@ function exportSummary(){
           ? s.weights[index]
           : "";
 
-
         const isDone =
           s.done.includes(
             index
           );
 
-
         if(
           weight ||
           isDone
         ){
-
 
           lines.push(
 
@@ -1830,13 +1415,10 @@ function exportSummary(){
 
           );
 
-
         }
-
 
       }
     );
-
 
     if(notes){
 
@@ -1847,31 +1429,25 @@ function exportSummary(){
 
     }
 
-
     lines.push("");
 
   }
-
 
   const text =
     lines.join(
       "\n"
     );
 
-
   const box =
     document.getElementById(
       "exportBox"
     );
 
-
   box.value =
     text;
 
-
   box.style.height =
     "auto";
-
 
   box.style.height =
     Math.min(
@@ -1882,9 +1458,9 @@ function exportSummary(){
 }
 
 
-/* ==============================
+/* ========================================
    OZNAČI POVZETEK
-================================ */
+======================================== */
 
 function selectSummary(){
 
@@ -1893,7 +1469,6 @@ function selectSummary(){
       "exportBox"
     );
 
-
   box.focus();
 
   box.select();
@@ -1901,18 +1476,17 @@ function selectSummary(){
 }
 
 
-/* ==============================
+/* ========================================
    JSON BACKUP
-================================ */
+======================================== */
 
 function exportBackup(){
 
   saveForm();
 
-
   const backup = {
 
-    version:3,
+    version:4,
 
     exportedAt:
       new Date()
@@ -1927,46 +1501,37 @@ function exportBackup(){
 
   };
 
-
   for(
     let i=0;
     i<30;
     i++
   ){
 
-
     backup.data[i] = {
-
 
       state:
         localStorage.getItem(
           "WT_" + i
         ),
 
-
       rpe:
         localStorage.getItem(
           "WT_" + i + "_rpe"
         ),
-
 
       feel:
         localStorage.getItem(
           "WT_" + i + "_feel"
         ),
 
-
       notes:
         localStorage.getItem(
           "WT_" + i + "_notes"
         )
 
-
     };
 
-
   }
-
 
   const blob =
     new Blob(
@@ -1986,22 +1551,18 @@ function exportBackup(){
 
     );
 
-
   const url =
     URL.createObjectURL(
       blob
     );
-
 
   const link =
     document.createElement(
       "a"
     );
 
-
   link.href =
     url;
-
 
   link.download =
     "warrior-tetrad-backup-" +
@@ -2010,18 +1571,14 @@ function exportBackup(){
       .slice(0,10) +
     ".json";
 
-
   document.body
     .appendChild(
       link
     );
 
-
   link.click();
 
-
   link.remove();
-
 
   setTimeout(()=>{
 
@@ -2034,36 +1591,30 @@ function exportBackup(){
 }
 
 
-/* ==============================
+/* ========================================
    UVOZ JSON
-================================ */
+======================================== */
 
 function importBackup(event){
 
   const file =
     event.target.files[0];
 
-
   if(!file)
     return;
-
 
   const reader =
     new FileReader();
 
-
   reader.onload =
     function(){
 
-
       try{
-
 
         const backup =
           JSON.parse(
             reader.result
           );
-
 
         if(
           !backup ||
@@ -2075,7 +1626,6 @@ function importBackup(event){
           );
 
         }
-
 
         if(
           !confirm(
@@ -2090,13 +1640,11 @@ function importBackup(event){
 
         }
 
-
         for(
           let i=0;
           i<30;
           i++
         ){
-
 
           const item =
             backup.data[i] ||
@@ -2104,14 +1652,11 @@ function importBackup(event){
               String(i)
             ];
 
-
           if(!item)
             continue;
 
-
           const prefix =
             "WT_" + i;
-
 
           if(
             item.state !== null &&
@@ -2131,7 +1676,6 @@ function importBackup(event){
 
           }
 
-
           if(
             item.rpe !== null &&
             item.rpe !== undefined
@@ -2142,14 +1686,7 @@ function importBackup(event){
               item.rpe
             );
 
-          }else{
-
-            localStorage.removeItem(
-              prefix + "_rpe"
-            );
-
           }
-
 
           if(
             item.feel !== null &&
@@ -2161,14 +1698,7 @@ function importBackup(event){
               item.feel
             );
 
-          }else{
-
-            localStorage.removeItem(
-              prefix + "_feel"
-            );
-
           }
-
 
           if(
             item.notes !== null &&
@@ -2180,64 +1710,45 @@ function importBackup(event){
               item.notes
             );
 
-          }else{
-
-            localStorage.removeItem(
-              prefix + "_notes"
-            );
-
           }
 
-
         }
-
 
         if(
           backup.currentDay !== undefined
         ){
-
 
           localStorage.setItem(
             "WT_current",
             backup.currentDay
           );
 
-
           current =
             Number(
               backup.currentDay
             ) || 0;
 
-
         }
-
 
         alert(
           "Podatki so uspešno uvoženi."
         );
 
-
         render();
 
-
       }catch(error){
-
 
         alert(
           "Datoteke ni bilo mogoče uvoziti: " +
           error.message
         );
 
-
       }
-
 
       event.target.value =
         "";
 
-
     };
-
 
   reader.readAsText(
     file
@@ -2246,19 +1757,10 @@ function importBackup(event){
 }
 
 
-/* ==============================
-   AUTOSAVE
-================================ */
-
 document.addEventListener(
   "change",
   saveForm
 );
-
-
-/* ==============================
-   START
-================================ */
 
 render();
 
