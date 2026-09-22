@@ -136,6 +136,7 @@ button{
   display:flex;
   gap:8px;
   flex-wrap:wrap;
+  align-items:center;
 }
 
 .row{
@@ -207,6 +208,38 @@ textarea{
   min-height:180px;
   font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
   font-size:13px;
+}
+
+/* MINI TIMER PRI VAJI */
+
+.inline-timer{
+  margin-top:12px;
+  padding:11px;
+  background:#111610;
+  border:1px solid var(--line);
+  border-radius:11px;
+}
+
+.inline-timer-title{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+
+.inline-timer-display{
+  color:var(--gold);
+  font-weight:800;
+  font-size:27px;
+  font-variant-numeric:tabular-nums;
+  margin-bottom:8px;
+}
+
+.inline-timer.running{
+  border-color:var(--gold);
+}
+
+.inline-timer.finished{
+  border-color:var(--green);
 }
 
 @media (min-width:650px){
@@ -334,7 +367,7 @@ textarea{
 </div>
 
 <div class="card">
-  <b>Timer</b>
+  <b>Glavni timer</b>
 
   <div id="clock" class="timer">00:00</div>
 
@@ -350,6 +383,10 @@ textarea{
 </main>
 
 <script>
+
+/* ==============================
+   PROGRAM
+================================ */
 
 const startDate = new Date(2026,8,22);
 
@@ -442,10 +479,22 @@ const week = [
 
 ];
 
+
+/* ==============================
+   STANJE
+================================ */
+
 let current = Number(localStorage.getItem("WT_current") || 0);
+
 let timer = null;
 let tiredMode = false;
 
+const inlineTimers = {};
+
+
+/* ==============================
+   SHRANJEVANJE
+================================ */
 
 function key(){
   return "WT_" + current;
@@ -453,17 +502,28 @@ function key(){
 
 
 function state(){
+
   return JSON.parse(
     localStorage.getItem(key()) ||
     '{"done":[],"weights":{},"finished":false}'
   );
+
 }
 
 
 function save(s){
-  localStorage.setItem(key(), JSON.stringify(s));
+
+  localStorage.setItem(
+    key(),
+    JSON.stringify(s)
+  );
+
 }
 
+
+/* ==============================
+   FAZE
+================================ */
 
 function phase(i){
 
@@ -480,6 +540,7 @@ function phase(i){
     return "TEDEN 4 · konsolidacija / deload";
 
   return "ZAKLJUČEK CIKLA";
+
 }
 
 
@@ -492,8 +553,13 @@ function date(i){
   );
 
   return d.toLocaleDateString("sl-SI");
+
 }
 
+
+/* ==============================
+   PROGRESIJA
+================================ */
 
 function plan(i){
 
@@ -506,6 +572,7 @@ function plan(i){
 
 
   /* TEDEN 2 */
+
   if(i >= 7 && i < 14){
 
     p.ex =
@@ -526,6 +593,7 @@ function plan(i){
 
 
   /* TEDEN 3 */
+
   if(i >= 14 && i < 21){
 
     p.ex =
@@ -550,7 +618,8 @@ function plan(i){
   }
 
 
-  /* TEDEN 4 - DELoad / konsolidacija */
+  /* TEDEN 4 */
+
   if(i >= 21 && i < 28){
 
     p.ex =
@@ -574,98 +643,423 @@ function plan(i){
 
 
   /* DAN 29 */
+
   if(i === 28){
 
     return {
+
       name:"Zaključni lahek full body",
+
       ex:[
+
         ["Goblet squat","2 × 8"],
+
         ["Sklece","2 × 8"],
+
         ["Cable row","2 × 8"],
+
         ["Single-leg RDL","2 × 6 / nogo"],
+
         ["Suitcase carry","2 × 20 m / stran"],
+
         ["Dead hang","2 × 15–20 s"],
+
         ["CVET","5–8 ciklov"],
+
         ["Hoja / veslač","20 min lahkotno"]
+
       ]
+
     };
 
   }
 
 
   /* DAN 30 */
+
   if(i === 29){
 
     return {
+
       name:"Regeneracija + pregled cikla",
+
       ex:[
+
         ["Hoja","30–45 min lahkotno"],
+
         ["CVET","5–10 ciklov"],
+
         ["Mobilnost","10 min"],
+
         ["Pregled napredka",
           "Izvozi povzetek in preveri RPE, bremena, počutje in opombe"]
+
       ]
+
     };
 
   }
 
 
   return p;
+
 }
 
+
+/* ==============================
+   INLINE TIMERJI
+================================ */
+
+function formatInlineTime(sec){
+
+  const m =
+    Math.floor(sec / 60);
+
+  const s =
+    sec % 60;
+
+  return (
+    String(m).padStart(2,"0") +
+    ":" +
+    String(s).padStart(2,"0")
+  );
+
+}
+
+
+function isTimedExercise(name){
+
+  return [
+
+    "Dead hang",
+
+    "Towel hang",
+
+    "Wall sit",
+
+    "Static lunge hold"
+
+  ].includes(name);
+
+}
+
+
+function getExerciseSeconds(name,detail){
+
+  const match =
+    detail.match(
+      /(\d+)(?:\s*[–-]\s*(\d+))?\s*s/
+    );
+
+
+  if(match){
+
+    return Number(match[1]);
+
+  }
+
+
+  if(name === "Dead hang")
+    return 15;
+
+  if(name === "Towel hang")
+    return 10;
+
+  if(name === "Wall sit")
+    return 15;
+
+  if(name === "Static lunge hold")
+    return 15;
+
+
+  return null;
+
+}
+
+
+function startInlineTimer(index,seconds){
+
+  stopInlineTimer(index);
+
+
+  let remaining =
+    seconds;
+
+
+  const display =
+    document.getElementById(
+      "inlineTimerDisplay_" + index
+    );
+
+
+  const box =
+    document.getElementById(
+      "inlineTimerBox_" + index
+    );
+
+
+  if(!display)
+    return;
+
+
+  if(box){
+
+    box.classList.remove(
+      "finished"
+    );
+
+    box.classList.add(
+      "running"
+    );
+
+  }
+
+
+  display.innerText =
+    formatInlineTime(
+      remaining
+    );
+
+
+  inlineTimers[index] =
+    setInterval(()=>{
+
+
+      remaining--;
+
+
+      display.innerText =
+        formatInlineTime(
+          Math.max(
+            remaining,
+            0
+          )
+        );
+
+
+      if(
+        remaining <= 0
+      ){
+
+
+        clearInterval(
+          inlineTimers[index]
+        );
+
+
+        delete inlineTimers[index];
+
+
+        if(box){
+
+          box.classList.remove(
+            "running"
+          );
+
+          box.classList.add(
+            "finished"
+          );
+
+        }
+
+
+        try{
+
+          if(navigator.vibrate){
+
+            navigator.vibrate(
+              [150,100,150]
+            );
+
+          }
+
+        }catch(e){}
+
+      }
+
+    },1000);
+
+}
+
+
+function stopInlineTimer(index){
+
+  if(
+    inlineTimers[index]
+  ){
+
+    clearInterval(
+      inlineTimers[index]
+    );
+
+    delete inlineTimers[index];
+
+  }
+
+}
+
+
+function resetInlineTimer(index,seconds){
+
+  stopInlineTimer(index);
+
+
+  const display =
+    document.getElementById(
+      "inlineTimerDisplay_" + index
+    );
+
+
+  const box =
+    document.getElementById(
+      "inlineTimerBox_" + index
+    );
+
+
+  if(display){
+
+    display.innerText =
+      formatInlineTime(
+        seconds
+      );
+
+  }
+
+
+  if(box){
+
+    box.classList.remove(
+      "running",
+      "finished"
+    );
+
+  }
+
+}
+
+
+function stopAllInlineTimers(){
+
+  Object.keys(
+    inlineTimers
+  )
+  .forEach(index => {
+
+    clearInterval(
+      inlineTimers[index]
+    );
+
+  });
+
+
+  for(
+    const k in inlineTimers
+  ){
+
+    delete inlineTimers[k];
+
+  }
+
+}
+
+
+/* ==============================
+   RENDER DNI
+================================ */
 
 function renderDays(){
 
   const box =
     document.getElementById("days");
 
+
   box.innerHTML = "";
 
 
-  for(let i=0; i<30; i++){
+  for(
+    let i=0;
+    i<30;
+    i++
+  ){
 
     let b =
-      document.createElement("button");
+      document.createElement(
+        "button"
+      );
 
-    b.className = "day";
+
+    b.className =
+      "day";
 
 
     let s =
       JSON.parse(
-        localStorage.getItem("WT_" + i) ||
+        localStorage.getItem(
+          "WT_" + i
+        ) ||
         '{"finished":false}'
       );
 
 
-    if(i === current)
-      b.classList.add("active");
+    if(
+      i === current
+    ){
+
+      b.classList.add(
+        "active"
+      );
+
+    }
 
 
-    if(s.finished)
-      b.classList.add("finished");
+    if(
+      s.finished
+    ){
+
+      b.classList.add(
+        "finished"
+      );
+
+    }
 
 
     b.innerText =
       (i + 1) +
-      (s.finished ? " ✓" : "");
+      (
+        s.finished
+        ? " ✓"
+        : ""
+      );
 
 
     b.onclick = () => {
 
+
       saveForm();
+
+
+      stopAllInlineTimers();
+
 
       current = i;
 
+
       tiredMode = false;
+
 
       localStorage.setItem(
         "WT_current",
         i
       );
 
+
       render();
 
-      window.scrollTo(0,0);
+
+      window.scrollTo(
+        0,
+        0
+      );
 
     };
 
@@ -677,30 +1071,58 @@ function renderDays(){
 }
 
 
+/* ==============================
+   RENDER VADBE
+================================ */
+
 function render(){
+
+  stopAllInlineTimers();
+
 
   renderDays();
 
 
-  const p = plan(current);
-  const s = state();
+  const p =
+    plan(current);
 
 
-  document.getElementById("title").innerText =
-    "DAN " + (current + 1) +
-    " · " + p.name;
+  const s =
+    state();
 
 
-  document.getElementById("meta").innerText =
+  document
+    .getElementById(
+      "title"
+    )
+    .innerText =
+    "DAN " +
+    (current + 1) +
+    " · " +
+    p.name;
+
+
+  document
+    .getElementById(
+      "meta"
+    )
+    .innerText =
     date(current);
 
 
-  document.getElementById("phaseLabel").innerText =
+  document
+    .getElementById(
+      "phaseLabel"
+    )
+    .innerText =
     phase(current);
 
 
   const tiredBtn =
-    document.getElementById("tiredBtn");
+    document
+      .getElementById(
+        "tiredBtn"
+      );
 
 
   tiredBtn.innerText =
@@ -710,81 +1132,165 @@ function render(){
 
 
   const box =
-    document.getElementById("exercises");
+    document
+      .getElementById(
+        "exercises"
+      );
 
 
   box.innerHTML = "";
 
 
-  p.ex.forEach((e,i)=>{
-
-    let d =
-      document.createElement("div");
+  p.ex.forEach(
+    (e,i)=>{
 
 
-    d.className =
-      "card exercise";
+      let d =
+        document.createElement(
+          "div"
+        );
 
 
-    if(
-      s.done.includes(i)
-    ){
+      d.className =
+        "card exercise";
 
-      d.classList.add("done");
+
+      if(
+        s.done.includes(i)
+      ){
+
+        d.classList.add(
+          "done"
+        );
+
+      }
+
+
+      let detail =
+        e[1];
+
+
+      if(
+        tiredMode &&
+        !/Hoja|CVET|Mobilnost|Foam|Kolesarjenje|Pregled/.test(e[0])
+      ){
+
+        detail +=
+          " · danes približno 20–30 % manj volumna";
+
+      }
+
+
+      const timed =
+        isTimedExercise(
+          e[0]
+        );
+
+
+      const seconds =
+        timed
+        ? getExerciseSeconds(
+            e[0],
+            detail
+          )
+        : null;
+
+
+      let timerHtml = "";
+
+
+      if(
+        timed &&
+        seconds
+      ){
+
+
+        timerHtml =
+        `
+        <div
+          id="inlineTimerBox_${i}"
+          class="inline-timer">
+
+          <div
+            class="inline-timer-title">
+
+            Čas izvajanja
+
+          </div>
+
+          <div
+            id="inlineTimerDisplay_${i}"
+            class="inline-timer-display">
+
+            ${formatInlineTime(seconds)}
+
+          </div>
+
+          <div class="row">
+
+            <button
+              class="dark"
+              onclick="startInlineTimer(${i},${seconds})">
+
+              START
+
+            </button>
+
+            <button
+              class="red"
+              onclick="resetInlineTimer(${i},${seconds})">
+
+              RESET
+
+            </button>
+
+          </div>
+
+        </div>
+        `;
+
+      }
+
+
+      d.innerHTML =
+      `
+        <div class="name">
+          ${e[0]}
+        </div>
+
+        <div class="detail">
+          ${detail}
+        </div>
+
+        <div class="controls">
+
+          <input
+            data-weight="${i}"
+            placeholder="kg / opomba"
+            value="${s.weights[i] || ""}">
+
+          <button
+            class="green"
+            onclick="toggle(${i})">
+
+            ${
+              s.done.includes(i)
+              ? "Razveljavi"
+              : "Končano"
+            }
+
+          </button>
+
+        </div>
+
+        ${timerHtml}
+      `;
+
+
+      box.appendChild(d);
 
     }
-
-
-    let detail = e[1];
-
-
-    if(
-      tiredMode &&
-      !/Hoja|CVET|Mobilnost|Foam|Kolesarjenje|Pregled/.test(e[0])
-    ){
-
-      detail +=
-        " · danes približno 20–30 % manj volumna";
-
-    }
-
-
-    d.innerHTML =
-    `
-      <div class="name">
-        ${e[0]}
-      </div>
-
-      <div class="detail">
-        ${detail}
-      </div>
-
-      <div class="controls">
-
-        <input
-          data-weight="${i}"
-          placeholder="kg / opomba"
-          value="${s.weights[i] || ""}">
-
-        <button
-          class="green"
-          onclick="toggle(${i})">
-
-          ${
-            s.done.includes(i)
-            ? "Razveljavi"
-            : "Končano"
-          }
-
-        </button>
-
-      </div>
-    `;
-
-
-    box.appendChild(d);
-
-  });
+  );
 
 
   let percent =
@@ -795,12 +1301,18 @@ function render(){
     );
 
 
-  document.getElementById("fill")
+  document
+    .getElementById(
+      "fill"
+    )
     .style.width =
     percent + "%";
 
 
-  document.getElementById("progressText")
+  document
+    .getElementById(
+      "progressText"
+    )
     .innerText =
     s.done.length +
     "/" +
@@ -810,19 +1322,31 @@ function render(){
     " %";
 
 
-  document.getElementById("rpe").value =
+  document
+    .getElementById(
+      "rpe"
+    )
+    .value =
     localStorage.getItem(
       key() + "_rpe"
     ) || "";
 
 
-  document.getElementById("feel").value =
+  document
+    .getElementById(
+      "feel"
+    )
+    .value =
     localStorage.getItem(
       key() + "_feel"
     ) || "";
 
 
-  document.getElementById("notes").value =
+  document
+    .getElementById(
+      "notes"
+    )
+    .value =
     localStorage.getItem(
       key() + "_notes"
     ) || "";
@@ -830,15 +1354,24 @@ function render(){
 }
 
 
+/* ==============================
+   LAŽJI DAN
+================================ */
+
 function toggleTired(){
 
   tiredMode =
     !tiredMode;
 
+
   render();
 
 }
 
+
+/* ==============================
+   KONČANO
+================================ */
 
 function toggle(i){
 
@@ -867,10 +1400,15 @@ function toggle(i){
 
   save(s);
 
+
   render();
 
 }
 
+
+/* ==============================
+   SHRANJEVANJE OBRAZCA
+================================ */
 
 function saveForm(){
 
@@ -884,9 +1422,12 @@ function saveForm(){
     )
     .forEach(el => {
 
+
       s.weights[
         el.dataset.weight
-      ] = el.value;
+      ] =
+        el.value;
+
 
     });
 
@@ -895,24 +1436,49 @@ function saveForm(){
 
 
   localStorage.setItem(
+
     key() + "_rpe",
-    document.getElementById("rpe").value
+
+    document
+      .getElementById(
+        "rpe"
+      )
+      .value
+
   );
 
 
   localStorage.setItem(
+
     key() + "_feel",
-    document.getElementById("feel").value
+
+    document
+      .getElementById(
+        "feel"
+      )
+      .value
+
   );
 
 
   localStorage.setItem(
+
     key() + "_notes",
-    document.getElementById("notes").value
+
+    document
+      .getElementById(
+        "notes"
+      )
+      .value
+
   );
 
 }
 
+
+/* ==============================
+   ZAKLJUČEK
+================================ */
 
 function finish(){
 
@@ -923,7 +1489,8 @@ function finish(){
     state();
 
 
-  s.finished = true;
+  s.finished =
+    true;
 
 
   save(s);
@@ -939,6 +1506,10 @@ function finish(){
 }
 
 
+/* ==============================
+   RESET
+================================ */
+
 function resetDay(){
 
   if(
@@ -946,8 +1517,13 @@ function resetDay(){
       "Ponastavim ta dan?"
     )
   ){
+
     return;
+
   }
+
+
+  stopAllInlineTimers();
 
 
   localStorage.removeItem(
@@ -975,29 +1551,51 @@ function resetDay(){
 }
 
 
+/* ==============================
+   GLAVNI TIMER
+================================ */
+
 function display(sec){
 
   let m =
-    Math.floor(sec / 60);
+    Math.floor(
+      sec / 60
+    );
 
 
   let s =
     sec % 60;
 
 
-  document.getElementById("clock")
+  document
+    .getElementById(
+      "clock"
+    )
     .innerText =
-    String(m).padStart(2,"0") +
+    String(m)
+      .padStart(
+        2,
+        "0"
+      ) +
     ":" +
-    String(s).padStart(2,"0");
+    String(s)
+      .padStart(
+        2,
+        "0"
+      );
 
 }
 
 
 function startTimer(sec){
 
-  if(timer)
-    clearInterval(timer);
+  if(timer){
+
+    clearInterval(
+      timer
+    );
+
+  }
 
 
   display(sec);
@@ -1006,20 +1604,34 @@ function startTimer(sec){
   timer =
     setInterval(()=>{
 
+
       sec--;
 
+
       display(
-        Math.max(sec,0)
+        Math.max(
+          sec,
+          0
+        )
       );
 
 
-      if(sec <= 0){
+      if(
+        sec <= 0
+      ){
 
-        clearInterval(timer);
 
-        timer = null;
+        clearInterval(
+          timer
+        );
+
+
+        timer =
+          null;
+
 
       }
+
 
     },1000);
 
@@ -1028,17 +1640,27 @@ function startTimer(sec){
 
 function stopTimer(){
 
-  if(timer)
-    clearInterval(timer);
+  if(timer){
+
+    clearInterval(
+      timer
+    );
+
+  }
 
 
-  timer = null;
+  timer =
+    null;
 
 
   display(0);
 
 }
 
+
+/* ==============================
+   IZVOZ POVZETKA
+================================ */
 
 function exportSummary(){
 
@@ -1053,12 +1675,15 @@ function exportSummary(){
   );
 
 
-  lines.push(
-    ""
-  );
+  lines.push("");
 
 
-  for(let i=0; i<30; i++){
+  for(
+    let i=0;
+    i<30;
+    i++
+  ){
+
 
     const p =
       plan(i);
@@ -1066,10 +1691,13 @@ function exportSummary(){
 
     const s =
       JSON.parse(
+
         localStorage.getItem(
           "WT_" + i
         ) ||
+
         '{"done":[],"weights":{},"finished":false}'
+
       );
 
 
@@ -1094,7 +1722,10 @@ function exportSummary(){
     const hasWeights =
       Object.values(
         s.weights || {}
-      ).some(v => v);
+      )
+      .some(
+        v => v
+      );
 
 
     if(
@@ -1141,7 +1772,8 @@ function exportSummary(){
     if(rpe){
 
       lines.push(
-        "RPE: " + rpe
+        "RPE: " +
+        rpe
       );
 
     }
@@ -1150,7 +1782,8 @@ function exportSummary(){
     if(feel){
 
       lines.push(
-        "Občutek: " + feel
+        "Občutek: " +
+        feel
       );
 
     }
@@ -1158,6 +1791,7 @@ function exportSummary(){
 
     p.ex.forEach(
       (exercise,index)=>{
+
 
         const weight =
           s.weights &&
@@ -1167,7 +1801,9 @@ function exportSummary(){
 
 
         const isDone =
-          s.done.includes(index);
+          s.done.includes(
+            index
+          );
 
 
         if(
@@ -1175,15 +1811,28 @@ function exportSummary(){
           isDone
         ){
 
+
           lines.push(
-            (isDone ? "✓ " : "- ") +
+
+            (
+              isDone
+              ? "✓ "
+              : "- "
+            ) +
+
             exercise[0] +
-            (weight
+
+            (
+              weight
               ? " | " + weight
-              : "")
+              : ""
+            )
+
           );
 
+
         }
+
 
       }
     );
@@ -1192,21 +1841,22 @@ function exportSummary(){
     if(notes){
 
       lines.push(
-        "Opomba: " + notes
+        "Opomba: " +
+        notes
       );
 
     }
 
 
-    lines.push(
-      ""
-    );
+    lines.push("");
 
   }
 
 
   const text =
-    lines.join("\n");
+    lines.join(
+      "\n"
+    );
 
 
   const box =
@@ -1232,6 +1882,10 @@ function exportSummary(){
 }
 
 
+/* ==============================
+   OZNAČI POVZETEK
+================================ */
+
 function selectSummary(){
 
   const box =
@@ -1247,6 +1901,10 @@ function selectSummary(){
 }
 
 
+/* ==============================
+   JSON BACKUP
+================================ */
+
 function exportBackup(){
 
   saveForm();
@@ -1254,7 +1912,7 @@ function exportBackup(){
 
   const backup = {
 
-    version:2,
+    version:3,
 
     exportedAt:
       new Date()
@@ -1270,31 +1928,42 @@ function exportBackup(){
   };
 
 
-  for(let i=0; i<30; i++){
+  for(
+    let i=0;
+    i<30;
+    i++
+  ){
+
 
     backup.data[i] = {
+
 
       state:
         localStorage.getItem(
           "WT_" + i
         ),
 
+
       rpe:
         localStorage.getItem(
           "WT_" + i + "_rpe"
         ),
+
 
       feel:
         localStorage.getItem(
           "WT_" + i + "_feel"
         ),
 
+
       notes:
         localStorage.getItem(
           "WT_" + i + "_notes"
         )
 
+
     };
+
 
   }
 
@@ -1343,7 +2012,9 @@ function exportBackup(){
 
 
   document.body
-    .appendChild(link);
+    .appendChild(
+      link
+    );
 
 
   link.click();
@@ -1362,6 +2033,10 @@ function exportBackup(){
 
 }
 
+
+/* ==============================
+   UVOZ JSON
+================================ */
 
 function importBackup(event){
 
@@ -1416,7 +2091,11 @@ function importBackup(event){
         }
 
 
-        for(let i=0; i<30; i++){
+        for(
+          let i=0;
+          i<30;
+          i++
+        ){
 
 
           const item =
@@ -1509,12 +2188,14 @@ function importBackup(event){
 
           }
 
+
         }
 
 
         if(
           backup.currentDay !== undefined
         ){
+
 
           localStorage.setItem(
             "WT_current",
@@ -1526,6 +2207,7 @@ function importBackup(event){
             Number(
               backup.currentDay
             ) || 0;
+
 
         }
 
@@ -1553,6 +2235,7 @@ function importBackup(event){
       event.target.value =
         "";
 
+
     };
 
 
@@ -1563,11 +2246,19 @@ function importBackup(event){
 }
 
 
+/* ==============================
+   AUTOSAVE
+================================ */
+
 document.addEventListener(
   "change",
   saveForm
 );
 
+
+/* ==============================
+   START
+================================ */
 
 render();
 
