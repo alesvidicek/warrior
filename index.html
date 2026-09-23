@@ -19,6 +19,7 @@
   --gold:#c99a43;
   --green:#5c8f55;
   --red:#a8564e;
+  --blue:#315a78;
   --line:#394235;
 }
 
@@ -105,6 +106,12 @@ button{
 .dark{
   background:#394739;
   color:white;
+}
+
+.video-btn{
+  background:var(--blue);
+  color:white;
+  padding:7px 12px;
 }
 
 .exercise{
@@ -197,7 +204,8 @@ textarea{
   font-size:13px;
 }
 
-/* TIMER V KARTICI VAJE */
+
+/* TIMER */
 
 .exercise-timer{
   margin-top:12px;
@@ -283,12 +291,15 @@ textarea{
 }
 
 @media (min-width:650px){
+
   .days{
     grid-template-columns:repeat(10,1fr);
   }
+
 }
 </style>
 </head>
+
 
 <body>
 
@@ -297,20 +308,34 @@ textarea{
 <h1>WARRIOR TETRAD</h1>
 <div class="sub">30-dnevni progresivni program</div>
 
+
 <div class="card notice">
+
   <b>Osnovno pravilo</b>
+
   <div class="small">
     RPE večinoma 5–7/10 · brez odpovedi · 2–4 ponovitve v rezervi ·
     ne zadržuj diha · kakovost giba je pomembnejša od teže.
   </div>
+
 </div>
 
+
 <div class="card">
+
   <b>30-dnevni cikel</b>
-  <div id="days" class="days" style="margin-top:12px"></div>
+
+  <div
+    id="days"
+    class="days"
+    style="margin-top:12px">
+  </div>
+
 </div>
 
+
 <div class="card">
+
   <div id="title" class="name"></div>
   <div id="meta" class="sub"></div>
   <div id="phaseLabel" class="phase"></div>
@@ -319,21 +344,35 @@ textarea{
     <div id="fill" class="fill"></div>
   </div>
 
-  <div id="progressText" class="small" style="margin-top:5px"></div>
+  <div
+    id="progressText"
+    class="small"
+    style="margin-top:5px">
+  </div>
 
   <div class="row" style="margin-top:12px">
-    <button id="tiredBtn" class="dark" onclick="toggleTired()">
+
+    <button
+      id="tiredBtn"
+      class="dark"
+      onclick="toggleTired()">
       Danes sem utrujen
     </button>
+
   </div>
+
 </div>
+
 
 <div id="exercises"></div>
 
+
 <div class="card">
+
   <b>Po treningu</b>
 
   <p>RPE</p>
+
   <select id="rpe">
     <option value="">Izberi</option>
     <option>4</option>
@@ -343,7 +382,9 @@ textarea{
     <option>8</option>
   </select>
 
+
   <p>Občutek</p>
+
   <select id="feel">
     <option value="">Izberi</option>
     <option>Prelahko</option>
@@ -351,29 +392,63 @@ textarea{
     <option>Pretežko</option>
   </select>
 
+
   <p>Opombe</p>
+
   <textarea
     id="notes"
     placeholder="Počutje, bolečina, dihanje, regeneracija, posebnosti..."
   ></textarea>
 
+
   <div class="row" style="margin-top:10px">
-    <button class="green" onclick="finish()">Zaključi dan</button>
-    <button class="red" onclick="resetDay()">Ponastavi dan</button>
+
+    <button
+      class="green"
+      onclick="finish()">
+      Zaključi dan
+    </button>
+
+    <button
+      class="red"
+      onclick="resetDay()">
+      Ponastavi dan
+    </button>
+
   </div>
+
 </div>
 
+
 <div class="card">
+
   <b>Podatki in varnostna kopija</b>
 
-  <div class="small" style="margin:8px 0 12px">
-    "Izvozi povzetek" pripravi berljivo poročilo za ChatGPT.
+  <div
+    class="small"
+    style="margin:8px 0 12px">
+
+    "Izvozi povzetek" pripravi poročilo za ChatGPT.
     JSON je varnostna kopija vseh shranjenih podatkov.
+
   </div>
 
+
   <div class="row">
-    <button class="green" onclick="exportSummary()">Izvozi povzetek</button>
-    <button class="dark" onclick="exportBackup()">Izvozi JSON</button>
+
+    <button
+      class="green"
+      onclick="exportSummary()">
+      Izvozi povzetek
+    </button>
+
+
+    <button
+      class="dark"
+      onclick="exportBackup()">
+      Izvozi JSON
+    </button>
+
 
     <button
       class="dark"
@@ -381,13 +456,16 @@ textarea{
       Uvozi JSON
     </button>
 
+
     <input
       id="importFile"
       type="file"
       accept=".json,application/json"
       style="display:none"
       onchange="importBackup(event)">
+
   </div>
+
 
   <textarea
     id="exportBox"
@@ -396,21 +474,39 @@ textarea{
     placeholder="Povzetek napredka se bo prikazal tukaj."
   ></textarea>
 
+
   <div class="row" style="margin-top:8px">
-    <button class="dark" onclick="selectSummary()">Označi povzetek</button>
+
+    <button
+      class="dark"
+      onclick="selectSummary()">
+      Označi povzetek
+    </button>
+
   </div>
+
 </div>
+
 
 </main>
 
+
+
 <script>
 
-const startDate = new Date(2026,8,22);
+/* =========================
+   PROGRAM
+========================= */
+
+const startDate =
+  new Date(2026,8,22);
+
 
 const week = [
 
 {
   name:"Priprava / aktivacija",
+
   ex:[
     ["Ogrevanje","Orbitrek 5 min + mobilnost"],
     ["Sklece","3 × 8"],
@@ -425,6 +521,7 @@ const week = [
 
 {
   name:"Glavni dan moči",
+
   ex:[
     ["Ogrevanje","Kolo ali orbitrek 8–10 min"],
     ["Bulgarian split squat","3 × 8 / nogo"],
@@ -439,6 +536,7 @@ const week = [
 
 {
   name:"Aktivna regeneracija",
+
   ex:[
     ["Hoja / kolo","30–60 min lahkotno"],
     ["CVET","5–8 počasnih ciklov"],
@@ -449,6 +547,7 @@ const week = [
 
 {
   name:"Funkcionalni špartanski dan",
+
   ex:[
     ["Goblet squat","3 × 10"],
     ["Sklece","3 × 8–10"],
@@ -458,26 +557,34 @@ const week = [
     ["Suitcase carry","3 × 20 m / stran"],
     ["Pallof press","3 × 10 / stran"],
     ["Static lunge hold","3 × 20 s / nogo"],
-    ["Legionarski zaključek",
-      "Tekalna steza 20 min · 5,5–6 km/h · naklon 3–5 %"]
+
+    [
+      "Legionarski zaključek",
+      "Tekalna steza 20 min · 5,5–6 km/h · naklon 3–5 %"
+    ]
   ]
 },
 
 {
   name:"Priprava + eksplozivnost",
+
   ex:[
     ["Sklece","3 × 8"],
     ["Pull-up negative","3 × 3"],
     ["Goblet squat","2 × 10"],
     ["Single-leg RDL","2 × 8 / nogo"],
     ["Dead hang","3 × 20 s"],
-    ["Eksplozivnost",
-      "Kettlebell swing 3 × 8–10 ALI nizek box jump 3 × 3"]
+
+    [
+      "Eksplozivnost",
+      "Kettlebell swing 3 × 8–10 ALI nizek box jump 3 × 3"
+    ]
   ]
 },
 
 {
   name:"Vzdržljivost",
+
   ex:[
     ["Veslač / orbitrek / hoja","30–45 min zmerno"],
     ["CVET","5–8 ciklov po želji"]
@@ -486,6 +593,7 @@ const week = [
 
 {
   name:"Regeneracija",
+
   ex:[
     ["Hoja","Lahkotno"],
     ["Kolesarjenje","Običajen tempo"],
@@ -496,139 +604,181 @@ const week = [
 
 ];
 
-let current = Number(localStorage.getItem("WT_current") || 0);
+
+/* =========================
+   VIDEO ISKANJA
+========================= */
+
+const videoSearches = {
+
+  "Ogrevanje":
+    "elliptical warm up mobility proper form",
+
+  "Goblet squat":
+    "Squat University goblet squat proper form",
+
+  "Bulgarian split squat":
+    "Squat University Bulgarian split squat proper form",
+
+  "Step-up":
+    "step up exercise proper form physical therapy",
+
+  "Wall sit":
+    "wall sit proper form isometric exercise",
+
+  "Static lunge hold":
+    "isometric lunge hold proper form",
+
+  "Romanian deadlift":
+    "Romanian deadlift RDL proper form Renaissance Periodization",
+
+  "Single-leg RDL":
+    "single leg Romanian deadlift proper form",
+
+  "Eksplozivnost":
+    "kettlebell swing proper form StrongFirst",
+
+  "Sklece":
+    "push up proper form NASM",
+
+  "Chest press":
+    "machine chest press proper form NASM",
+
+  "Cable row":
+    "seated cable row proper form",
+
+  "Lat pulldown":
+    "lat pulldown proper form Renaissance Periodization",
+
+  "Pull-up negative":
+    "negative pull up proper form progression",
+
+  "Dead hang":
+    "active dead hang proper form",
+
+  "Towel hang":
+    "towel hang grip training proper form",
+
+  "Suitcase carry":
+    "suitcase carry proper form core",
+
+  "Pallof press":
+    "Pallof press proper form physical therapy",
+
+  "Veslač":
+    "Concept2 rowing technique",
+
+  "Veslač / orbitrek / hoja":
+    "Concept2 rowing technique",
+
+  "Hoja / veslač":
+    "Concept2 rowing technique",
+
+  "Legionarski zaključek":
+    "incline treadmill walking proper form",
+
+  "Hoja / kolo":
+    "stationary bike proper setup recovery ride",
+
+  "Hoja":
+    "brisk walking proper form",
+
+  "Kolesarjenje":
+    "stationary bike proper setup seat height",
+
+  "Mobilnost":
+    "Tom Merrick full body mobility routine",
+
+  "Foam roller":
+    "full body foam roller routine physical therapy",
+
+  "CVET":
+    "Martha Peterson Hanna Somatics arch and flatten"
+
+};
+
+
+function videoUrl(name){
+
+  const query =
+    videoSearches[name];
+
+  if(!query){
+    return null;
+  }
+
+  return (
+    "https://www.youtube.com/results?search_query=" +
+    encodeURIComponent(query)
+  );
+
+}
+
+
+function openVideo(name){
+
+  const url =
+    videoUrl(name);
+
+  if(!url){
+
+    alert(
+      "Za to vajo video še ni nastavljen."
+    );
+
+    return;
+
+  }
+
+  window.open(
+    url,
+    "_blank",
+    "noopener,noreferrer"
+  );
+
+}
+
+
+/* =========================
+   STANJE
+========================= */
+
+let current =
+  Number(
+    localStorage.getItem(
+      "WT_current"
+    ) || 0
+  );
+
 let tiredMode = false;
 
 let activeTimer = null;
 let activeTimerExercise = null;
-let activeTimerSeconds = 0;
 
 let audioContext = null;
 
 
-/* AUDIO */
-
-function ensureAudio(){
-
-  if(!audioContext){
-
-    const AudioCtx =
-      window.AudioContext ||
-      window.webkitAudioContext;
-
-    if(AudioCtx){
-      audioContext = new AudioCtx();
-    }
-
-  }
-
-  if(
-    audioContext &&
-    audioContext.state === "suspended"
-  ){
-    audioContext.resume();
-  }
-
-}
-
-function tone(
-  frequency,
-  duration,
-  volume,
-  delay = 0
-){
-
-  if(!audioContext)
-    return;
-
-  const now =
-    audioContext.currentTime + delay;
-
-  const oscillator =
-    audioContext.createOscillator();
-
-  const gain =
-    audioContext.createGain();
-
-  oscillator.type = "sine";
-
-  oscillator.frequency.setValueAtTime(
-    frequency,
-    now
-  );
-
-  gain.gain.setValueAtTime(
-    0.0001,
-    now
-  );
-
-  gain.gain.exponentialRampToValueAtTime(
-    volume,
-    now + 0.015
-  );
-
-  gain.gain.exponentialRampToValueAtTime(
-    0.0001,
-    now + duration
-  );
-
-  oscillator.connect(gain);
-
-  gain.connect(
-    audioContext.destination
-  );
-
-  oscillator.start(now);
-
-  oscillator.stop(
-    now + duration + 0.03
-  );
-
-}
-
-function playCountdownBeep(sec){
-
-  ensureAudio();
-
-  if(sec === 3){
-    tone(620,0.12,0.25);
-  }
-
-  if(sec === 2){
-    tone(700,0.12,0.25);
-  }
-
-  if(sec === 1){
-    tone(780,0.14,0.28);
-  }
-
-}
-
-function playEndSound(){
-
-  ensureAudio();
-
-  tone(880,0.18,0.32,0.00);
-  tone(880,0.18,0.32,0.27);
-  tone(1100,0.35,0.38,0.54);
-
-}
-
-
-/* STANJE */
-
 function key(){
+
   return "WT_" + current;
+
 }
+
 
 function state(){
 
   return JSON.parse(
-    localStorage.getItem(key()) ||
+
+    localStorage.getItem(
+      key()
+    ) ||
+
     '{"done":[],"weights":{},"finished":false}'
+
   );
 
 }
+
 
 function save(s){
 
@@ -640,7 +790,138 @@ function save(s){
 }
 
 
-/* FAZE */
+/* =========================
+   AUDIO
+========================= */
+
+function ensureAudio(){
+
+  if(!audioContext){
+
+    const AudioCtx =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if(AudioCtx){
+
+      audioContext =
+        new AudioCtx();
+
+    }
+
+  }
+
+  if(
+    audioContext &&
+    audioContext.state === "suspended"
+  ){
+
+    audioContext.resume();
+
+  }
+
+}
+
+
+function tone(
+  frequency,
+  duration,
+  volume,
+  delay = 0
+){
+
+  if(!audioContext)
+    return;
+
+
+  const now =
+    audioContext.currentTime + delay;
+
+
+  const oscillator =
+    audioContext.createOscillator();
+
+
+  const gain =
+    audioContext.createGain();
+
+
+  oscillator.type =
+    "sine";
+
+
+  oscillator.frequency.setValueAtTime(
+    frequency,
+    now
+  );
+
+
+  gain.gain.setValueAtTime(
+    0.0001,
+    now
+  );
+
+
+  gain.gain.exponentialRampToValueAtTime(
+    volume,
+    now + 0.015
+  );
+
+
+  gain.gain.exponentialRampToValueAtTime(
+    0.0001,
+    now + duration
+  );
+
+
+  oscillator.connect(gain);
+
+  gain.connect(
+    audioContext.destination
+  );
+
+
+  oscillator.start(now);
+
+  oscillator.stop(
+    now + duration + 0.03
+  );
+
+}
+
+
+function playCountdownBeep(sec){
+
+  ensureAudio();
+
+  if(sec === 3)
+    tone(620,0.12,0.25);
+
+  if(sec === 2)
+    tone(700,0.12,0.25);
+
+  if(sec === 1)
+    tone(780,0.14,0.28);
+
+}
+
+
+function playEndSound(){
+
+  ensureAudio();
+
+  tone(880,0.18,0.32,0.00);
+
+  tone(880,0.18,0.32,0.27);
+
+  tone(1100,0.35,0.38,0.54);
+
+}
+
+
+/* =========================
+   FAZE
+========================= */
 
 function phase(i){
 
@@ -657,7 +938,9 @@ function phase(i){
     return "TEDEN 4 · konsolidacija / deload";
 
   return "ZAKLJUČEK CIKLA";
+
 }
+
 
 function date(i){
 
@@ -675,7 +958,9 @@ function date(i){
 }
 
 
-/* PROGRAM + PROGRESIJA */
+/* =========================
+   PROGRESIJA
+========================= */
 
 function plan(i){
 
@@ -685,6 +970,7 @@ function plan(i){
         week[i % 7]
       )
     );
+
 
   if(i >= 7 && i < 14){
 
@@ -704,19 +990,25 @@ function plan(i){
 
   }
 
+
   if(i >= 14 && i < 21){
 
     p.ex =
       p.ex.map(x => {
 
         if(
-          !/CVET|Hoja|Mobilnost|Foam|Kolesarjenje/.test(x[0])
+          !/CVET|Hoja|Mobilnost|Foam|Kolesarjenje/.test(
+            x[0]
+          )
         ){
 
           return [
+
             x[0],
+
             x[1] +
             " · če je lahkotno: +2,5–5 % bremena"
+
           ];
 
         }
@@ -727,26 +1019,35 @@ function plan(i){
 
   }
 
+
   if(i >= 21 && i < 28){
 
     p.ex =
       p.ex.map(x => {
 
         if(
-          /CVET|Hoja|Mobilnost|Foam|Kolesarjenje/.test(x[0])
+          /CVET|Hoja|Mobilnost|Foam|Kolesarjenje/.test(
+            x[0]
+          )
         ){
+
           return x;
+
         }
 
         return [
+
           x[0],
+
           x[1] +
           " · ta teden približno 20–30 % manj volumna"
+
         ];
 
       });
 
   }
+
 
   if(i === 28){
 
@@ -755,19 +1056,29 @@ function plan(i){
       name:"Zaključni lahek full body",
 
       ex:[
+
         ["Goblet squat","2 × 8"],
+
         ["Sklece","2 × 8"],
+
         ["Cable row","2 × 8"],
+
         ["Single-leg RDL","2 × 6 / nogo"],
+
         ["Suitcase carry","2 × 20 m / stran"],
+
         ["Dead hang","2 × 20 s"],
+
         ["CVET","5–8 ciklov"],
+
         ["Hoja / veslač","20 min lahkotno"]
+
       ]
 
     };
 
   }
+
 
   if(i === 29){
 
@@ -776,59 +1087,102 @@ function plan(i){
       name:"Regeneracija + pregled cikla",
 
       ex:[
+
         ["Hoja","30–45 min lahkotno"],
+
         ["CVET","5–10 ciklov"],
+
         ["Mobilnost","10 min"],
-        ["Pregled napredka",
-          "Izvozi povzetek in preveri RPE, bremena, počutje in opombe"]
+
+        [
+          "Pregled napredka",
+          "Izvozi povzetek in preveri RPE, bremena, počutje in opombe"
+        ]
+
       ]
 
     };
 
   }
 
+
   return p;
 
 }
 
 
-/* TIMER KATEGORIJE */
+/* =========================
+   TIMER KATEGORIJE
+========================= */
 
 function isShortTimedExercise(name){
 
   return [
+
     "Dead hang",
+
     "Towel hang",
+
     "Wall sit",
+
     "Static lunge hold"
+
   ].includes(name);
 
 }
+
 
 function isConditioningExercise(name){
 
   return [
+
     "Veslač",
+
     "Veslač / orbitrek / hoja",
+
     "Hoja / veslač",
+
     "Legionarski zaključek",
+
     "Hoja / kolo",
+
     "Hoja",
+
     "Kolesarjenje",
+
     "Foam roller",
+
     "Mobilnost"
+
   ].includes(name);
 
 }
 
 
-/* TIMER HTML V KARTICI */
+function safeJs(text){
 
-function exerciseTimerHtml(name,index){
+  return text
+    .replace(/\\/g,"\\\\")
+    .replace(/'/g,"\\'");
 
-  if(isShortTimedExercise(name)){
+}
+
+
+/* =========================
+   TIMER HTML
+========================= */
+
+function exerciseTimerHtml(
+  name,
+  index
+){
+
+  if(
+    isShortTimedExercise(name)
+  ){
 
     return `
+
       <div
         id="timerBox_${index}"
         class="exercise-timer">
@@ -843,25 +1197,25 @@ function exerciseTimerHtml(name,index){
 
             <button
               class="timer-button"
-              onclick="startExerciseTimer(${index},20,'${safeJs(name)}')">
+              onclick="startExerciseTimer(${index},20)">
               20 s
             </button>
 
             <button
               class="timer-button"
-              onclick="startExerciseTimer(${index},30,'${safeJs(name)}')">
+              onclick="startExerciseTimer(${index},30)">
               30 s
             </button>
 
             <button
               class="timer-button"
-              onclick="startExerciseTimer(${index},45,'${safeJs(name)}')">
+              onclick="startExerciseTimer(${index},45)">
               45 s
             </button>
 
             <button
               class="timer-button"
-              onclick="startExerciseTimer(${index},60,'${safeJs(name)}')">
+              onclick="startExerciseTimer(${index},60)">
               60 s
             </button>
 
@@ -873,6 +1227,7 @@ function exerciseTimerHtml(name,index){
 
           </div>
 
+
           <div
             id="timerDisplay_${index}"
             class="timer-display">
@@ -882,14 +1237,18 @@ function exerciseTimerHtml(name,index){
         </div>
 
       </div>
+
     `;
 
   }
 
 
-  if(isConditioningExercise(name)){
+  if(
+    isConditioningExercise(name)
+  ){
 
     return `
+
       <div
         id="timerBox_${index}"
         class="exercise-timer">
@@ -904,31 +1263,31 @@ function exerciseTimerHtml(name,index){
 
             <button
               class="timer-button"
-              onclick="startExerciseTimer(${index},300,'${safeJs(name)}')">
+              onclick="startExerciseTimer(${index},300)">
               5 min
             </button>
 
             <button
               class="timer-button"
-              onclick="startExerciseTimer(${index},600,'${safeJs(name)}')">
+              onclick="startExerciseTimer(${index},600)">
               10 min
             </button>
 
             <button
               class="timer-button"
-              onclick="startExerciseTimer(${index},900,'${safeJs(name)}')">
+              onclick="startExerciseTimer(${index},900)">
               15 min
             </button>
 
             <button
               class="timer-button"
-              onclick="startExerciseTimer(${index},1200,'${safeJs(name)}')">
+              onclick="startExerciseTimer(${index},1200)">
               20 min
             </button>
 
             <button
               class="timer-button"
-              onclick="startExerciseTimer(${index},1800,'${safeJs(name)}')">
+              onclick="startExerciseTimer(${index},1800)">
               30 min
             </button>
 
@@ -940,6 +1299,7 @@ function exerciseTimerHtml(name,index){
 
           </div>
 
+
           <div
             id="timerDisplay_${index}"
             class="timer-display">
@@ -949,6 +1309,7 @@ function exerciseTimerHtml(name,index){
         </div>
 
       </div>
+
     `;
 
   }
@@ -958,16 +1319,10 @@ function exerciseTimerHtml(name,index){
 
 }
 
-function safeJs(text){
 
-  return text
-    .replace(/\\/g,"\\\\")
-    .replace(/'/g,"\\'");
-
-}
-
-
-/* TIMER LOGIKA */
+/* =========================
+   TIMER LOGIKA
+========================= */
 
 function formatTime(sec){
 
@@ -987,6 +1342,7 @@ function formatTime(sec){
 
 }
 
+
 function clearActiveTimer(){
 
   if(activeTimer){
@@ -997,16 +1353,12 @@ function clearActiveTimer(){
 
   }
 
-  activeTimer =
-    null;
+  activeTimer = null;
 
-  activeTimerExercise =
-    null;
-
-  activeTimerSeconds =
-    0;
+  activeTimerExercise = null;
 
 }
+
 
 function resetTimerVisual(index){
 
@@ -1020,6 +1372,7 @@ function resetTimerVisual(index){
       "timerBox_" + index
     );
 
+
   if(display){
 
     display.classList.remove(
@@ -1028,6 +1381,7 @@ function resetTimerVisual(index){
     );
 
   }
+
 
   if(box){
 
@@ -1040,29 +1394,25 @@ function resetTimerVisual(index){
 
 }
 
+
 function startExerciseTimer(
   index,
-  seconds,
-  name
+  seconds
 ){
 
   ensureAudio();
 
 
-  /* ustavi stari timer */
-
   if(
     activeTimerExercise !== null
   ){
 
-    const oldIndex =
+    const old =
       activeTimerExercise;
 
     clearActiveTimer();
 
-    resetTimerVisual(
-      oldIndex
-    );
+    resetTimerVisual(old);
 
   }
 
@@ -1070,14 +1420,12 @@ function startExerciseTimer(
   activeTimerExercise =
     index;
 
-  activeTimerSeconds =
-    seconds;
-
 
   const display =
     document.getElementById(
       "timerDisplay_" + index
     );
+
 
   const box =
     document.getElementById(
@@ -1089,17 +1437,14 @@ function startExerciseTimer(
     return;
 
 
-  if(box){
+  box.classList.add(
+    "active"
+  );
 
-    box.classList.add(
-      "active"
-    );
 
-    box.classList.remove(
-      "finished"
-    );
-
-  }
+  box.classList.remove(
+    "finished"
+  );
 
 
   display.classList.remove(
@@ -1109,9 +1454,7 @@ function startExerciseTimer(
 
 
   display.innerText =
-    formatTime(
-      seconds
-    );
+    formatTime(seconds);
 
 
   let remaining =
@@ -1177,37 +1520,29 @@ function startExerciseTimer(
         );
 
 
-        if(box){
+        box.classList.remove(
+          "active"
+        );
 
-          box.classList.remove(
-            "active"
-          );
 
-          box.classList.add(
-            "finished"
-          );
-
-        }
+        box.classList.add(
+          "finished"
+        );
 
 
         playEndSound();
 
 
-        /* obdrži izbran čas za naslednjo serijo */
-
         setTimeout(()=>{
 
           if(
-            display &&
             display.classList.contains(
               "finished"
             )
           ){
 
             display.innerText =
-              formatTime(
-                seconds
-              );
+              formatTime(seconds);
 
           }
 
@@ -1219,6 +1554,7 @@ function startExerciseTimer(
     },1000);
 
 }
+
 
 function stopExerciseTimer(index){
 
@@ -1248,6 +1584,7 @@ function stopExerciseTimer(index){
     display.innerText =
       "00:00";
 
+
     display.classList.remove(
       "final",
       "finished"
@@ -1268,7 +1605,9 @@ function stopExerciseTimer(index){
 }
 
 
-/* DNI */
+/* =========================
+   DNEVI
+========================= */
 
 function renderDays(){
 
@@ -1277,7 +1616,10 @@ function renderDays(){
       "days"
     );
 
-  box.innerHTML = "";
+
+  box.innerHTML =
+    "";
+
 
   for(
     let i=0;
@@ -1290,33 +1632,44 @@ function renderDays(){
         "button"
       );
 
+
     b.className =
       "day";
 
 
     let s =
       JSON.parse(
+
         localStorage.getItem(
           "WT_" + i
         ) ||
+
         '{"finished":false}'
+
       );
 
 
-    if(i === current)
+    if(i === current){
+
       b.classList.add(
         "active"
       );
 
+    }
 
-    if(s.finished)
+
+    if(s.finished){
+
       b.classList.add(
         "finished"
       );
 
+    }
+
 
     b.innerText =
       (i + 1) +
+
       (
         s.finished
         ? " ✓"
@@ -1330,17 +1683,22 @@ function renderDays(){
 
       clearActiveTimer();
 
-      current = i;
+      current =
+        i;
+
 
       tiredMode =
         false;
+
 
       localStorage.setItem(
         "WT_current",
         i
       );
 
+
       render();
+
 
       window.scrollTo(
         0,
@@ -1357,11 +1715,11 @@ function renderDays(){
 }
 
 
-/* RENDER */
+/* =========================
+   RENDER
+========================= */
 
 function render(){
-
-  clearActiveTimer();
 
   renderDays();
 
@@ -1375,8 +1733,11 @@ function render(){
 
 
   document
-    .getElementById("title")
+    .getElementById(
+      "title"
+    )
     .innerText =
+
     "DAN " +
     (current + 1) +
     " · " +
@@ -1384,14 +1745,20 @@ function render(){
 
 
   document
-    .getElementById("meta")
+    .getElementById(
+      "meta"
+    )
     .innerText =
+
     date(current);
 
 
   document
-    .getElementById("phaseLabel")
+    .getElementById(
+      "phaseLabel"
+    )
     .innerText =
+
     phase(current);
 
 
@@ -1403,8 +1770,8 @@ function render(){
 
   tiredBtn.innerText =
     tiredMode
-    ? "Lažja različica aktivna"
-    : "Danes sem utrujen";
+      ? "Lažja različica aktivna"
+      : "Danes sem utrujen";
 
 
   const box =
@@ -1448,7 +1815,9 @@ function render(){
 
       if(
         tiredMode &&
-        !/Hoja|CVET|Mobilnost|Foam|Kolesarjenje|Pregled/.test(e[0])
+        !/Hoja|CVET|Mobilnost|Foam|Kolesarjenje|Pregled/.test(
+          e[0]
+        )
       ){
 
         detail +=
@@ -1457,15 +1826,31 @@ function render(){
       }
 
 
-      d.innerHTML =
-      `
+      const videoButton =
+        videoUrl(e[0])
+        ? `
+
+          <button
+            class="video-btn"
+            onclick="openVideo('${safeJs(e[0])}')">
+            ▶ VIDEO
+          </button>
+
+        `
+        : "";
+
+
+      d.innerHTML = `
+
         <div class="name">
           ${e[0]}
         </div>
 
+
         <div class="detail">
           ${detail}
         </div>
+
 
         <div class="controls">
 
@@ -1474,21 +1859,27 @@ function render(){
             placeholder="kg / opomba"
             value="${s.weights[i] || ""}">
 
+
           <button
             class="green"
             onclick="toggle(${i})">
 
             ${
               s.done.includes(i)
-              ? "Razveljavi"
-              : "Končano"
+                ? "Razveljavi"
+                : "Končano"
             }
 
           </button>
 
+
+          ${videoButton}
+
         </div>
 
+
         ${exerciseTimerHtml(e[0],i)}
+
       `;
 
 
@@ -1498,24 +1889,31 @@ function render(){
   );
 
 
-  let percent =
+  const percent =
     Math.round(
+
       s.done.length /
       p.ex.length *
       100
+
     );
 
 
   document
-    .getElementById("fill")
+    .getElementById(
+      "fill"
+    )
     .style.width =
-    percent +
-    "%";
+
+    percent + "%";
 
 
   document
-    .getElementById("progressText")
+    .getElementById(
+      "progressText"
+    )
     .innerText =
+
     s.done.length +
     "/" +
     p.ex.length +
@@ -1525,24 +1923,33 @@ function render(){
 
 
   document
-    .getElementById("rpe")
+    .getElementById(
+      "rpe"
+    )
     .value =
+
     localStorage.getItem(
       key() + "_rpe"
     ) || "";
 
 
   document
-    .getElementById("feel")
+    .getElementById(
+      "feel"
+    )
     .value =
+
     localStorage.getItem(
       key() + "_feel"
     ) || "";
 
 
   document
-    .getElementById("notes")
+    .getElementById(
+      "notes"
+    )
     .value =
+
     localStorage.getItem(
       key() + "_notes"
     ) || "";
@@ -1550,7 +1957,9 @@ function render(){
 }
 
 
-/* LAŽJI DAN */
+/* =========================
+   UTRUJENOST
+========================= */
 
 function toggleTired(){
 
@@ -1562,7 +1971,9 @@ function toggleTired(){
 }
 
 
-/* KONČANO */
+/* =========================
+   KONČANO
+========================= */
 
 function toggle(i){
 
@@ -1596,7 +2007,9 @@ function toggle(i){
 }
 
 
-/* SHRANJEVANJE */
+/* =========================
+   SHRANJEVANJE
+========================= */
 
 function saveForm(){
 
@@ -1622,32 +2035,43 @@ function saveForm(){
 
 
   localStorage.setItem(
+
     key() + "_rpe",
+
     document.getElementById(
       "rpe"
     ).value
+
   );
 
 
   localStorage.setItem(
+
     key() + "_feel",
+
     document.getElementById(
       "feel"
     ).value
+
   );
 
 
   localStorage.setItem(
+
     key() + "_notes",
+
     document.getElementById(
       "notes"
     ).value
+
   );
 
 }
 
 
-/* ZAKLJUČEK DNEVA */
+/* =========================
+   ZAKLJUČI DAN
+========================= */
 
 function finish(){
 
@@ -1675,7 +2099,9 @@ function finish(){
 }
 
 
-/* RESET */
+/* =========================
+   RESET
+========================= */
 
 function resetDay(){
 
@@ -1684,7 +2110,9 @@ function resetDay(){
       "Ponastavim ta dan?"
     )
   ){
+
     return;
+
   }
 
 
@@ -1716,7 +2144,9 @@ function resetDay(){
 }
 
 
-/* IZVOZ POVZETKA */
+/* =========================
+   IZVOZ POVZETKA
+========================= */
 
 function exportSummary(){
 
@@ -1740,17 +2170,19 @@ function exportSummary(){
     i++
   ){
 
-
     const p =
       plan(i);
 
 
     const s =
       JSON.parse(
+
         localStorage.getItem(
           "WT_" + i
         ) ||
+
         '{"done":[],"weights":{},"finished":false}'
+
       );
 
 
@@ -1796,12 +2228,14 @@ function exportSummary(){
 
 
     lines.push(
+
       "DAN " +
       (i + 1) +
       " | " +
       date(i) +
       " | " +
       p.name
+
     );
 
 
@@ -1811,9 +2245,7 @@ function exportSummary(){
     );
 
 
-    if(
-      s.finished
-    ){
+    if(s.finished){
 
       lines.push(
         "Status: zaključen"
@@ -1825,8 +2257,7 @@ function exportSummary(){
     if(rpe){
 
       lines.push(
-        "RPE: " +
-        rpe
+        "RPE: " + rpe
       );
 
     }
@@ -1835,8 +2266,7 @@ function exportSummary(){
     if(feel){
 
       lines.push(
-        "Občutek: " +
-        feel
+        "Občutek: " + feel
       );
 
     }
@@ -1849,8 +2279,8 @@ function exportSummary(){
         const weight =
           s.weights &&
           s.weights[index]
-          ? s.weights[index]
-          : "";
+            ? s.weights[index]
+            : "";
 
 
         const isDone =
@@ -1864,28 +2294,25 @@ function exportSummary(){
           isDone
         ){
 
-
           lines.push(
 
             (
               isDone
-              ? "✓ "
-              : "- "
+                ? "✓ "
+                : "- "
             ) +
 
             exercise[0] +
 
             (
               weight
-              ? " | " + weight
-              : ""
+                ? " | " + weight
+                : ""
             )
 
           );
 
-
         }
-
 
       }
     );
@@ -1935,7 +2362,9 @@ function exportSummary(){
 }
 
 
-/* OZNAČI POVZETEK */
+/* =========================
+   OZNAČI POVZETEK
+========================= */
 
 function selectSummary(){
 
@@ -1952,7 +2381,9 @@ function selectSummary(){
 }
 
 
-/* JSON BACKUP */
+/* =========================
+   JSON BACKUP
+========================= */
 
 function exportBackup(){
 
@@ -1961,11 +2392,10 @@ function exportBackup(){
 
   const backup = {
 
-    version:7,
+    version:8,
 
     exportedAt:
-      new Date()
-        .toISOString(),
+      new Date().toISOString(),
 
     currentDay:
       localStorage.getItem(
@@ -1983,36 +2413,29 @@ function exportBackup(){
     i++
   ){
 
-
     backup.data[i] = {
-
 
       state:
         localStorage.getItem(
           "WT_" + i
         ),
 
-
       rpe:
         localStorage.getItem(
           "WT_" + i + "_rpe"
         ),
-
 
       feel:
         localStorage.getItem(
           "WT_" + i + "_feel"
         ),
 
-
       notes:
         localStorage.getItem(
           "WT_" + i + "_notes"
         )
 
-
     };
-
 
   }
 
@@ -2029,8 +2452,7 @@ function exportBackup(){
       ],
 
       {
-        type:
-        "application/json"
+        type:"application/json"
       }
 
     );
@@ -2060,14 +2482,12 @@ function exportBackup(){
     ".json";
 
 
-  document.body
-    .appendChild(
-      link
-    );
+  document.body.appendChild(
+    link
+  );
 
 
   link.click();
-
 
   link.remove();
 
@@ -2083,7 +2503,9 @@ function exportBackup(){
 }
 
 
-/* UVOZ JSON */
+/* =========================
+   UVOZ
+========================= */
 
 function importBackup(event){
 
@@ -2144,7 +2566,6 @@ function importBackup(event){
           i++
         ){
 
-
           const item =
             backup.data[i] ||
             backup.data[
@@ -2168,12 +2589,6 @@ function importBackup(event){
             localStorage.setItem(
               prefix,
               item.state
-            );
-
-          }else{
-
-            localStorage.removeItem(
-              prefix
             );
 
           }
@@ -2217,14 +2632,12 @@ function importBackup(event){
 
           }
 
-
         }
 
 
         if(
           backup.currentDay !== undefined
         ){
-
 
           localStorage.setItem(
             "WT_current",
@@ -2236,7 +2649,6 @@ function importBackup(event){
             Number(
               backup.currentDay
             ) || 0;
-
 
         }
 
@@ -2253,17 +2665,17 @@ function importBackup(event){
 
 
         alert(
+
           "Datoteke ni bilo mogoče uvoziti: " +
           error.message
-        );
 
+        );
 
       }
 
 
       event.target.value =
         "";
-
 
     };
 
@@ -2275,15 +2687,15 @@ function importBackup(event){
 }
 
 
-/* AUTOSAVE */
+/* =========================
+   AUTOSAVE + START
+========================= */
 
 document.addEventListener(
   "change",
   saveForm
 );
 
-
-/* START */
 
 render();
 
